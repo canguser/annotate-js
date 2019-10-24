@@ -1,0 +1,103 @@
+import Constants from "./Constants";
+
+const STORAGE_SYMBOL_MAP = {};
+
+export default class AnnotationUtils {
+
+    static getClassEntity(instance) {
+        const {CLASS_STORAGE, CLASS_ENTITY} = Constants;
+        const prototype = Object.getPrototypeOf(instance);
+        const classStorageField = this.getUniqueField(CLASS_STORAGE)
+        const storage = prototype[classStorageField];
+        if (storage) {
+            return storage[CLASS_ENTITY];
+        }
+    }
+
+    static getPropertyEntity(instance, property) {
+        const classEntity = this.getClassEntity(instance);
+        return classEntity.getProperty(property);
+    }
+
+    static applyClassEntity(target, classEntity) {
+        const {CLASS_STORAGE, CLASS_ENTITY} = Constants;
+        const storage = this.getTargetStorage(target, CLASS_STORAGE);
+        storage[CLASS_ENTITY] = classEntity;
+    }
+
+    static getUniqueField(field) {
+        if (!STORAGE_SYMBOL_MAP[field]) {
+            Object.defineProperty(STORAGE_SYMBOL_MAP, field, {
+                enumerable: false,
+                configurable: false,
+                writable: false,
+                value: Symbol(field)
+            });
+        }
+        return STORAGE_SYMBOL_MAP[field];
+    }
+
+    static getTargetStorage(target, field, defaultValue = {}) {
+        const symbolField = this.getUniqueField(field);
+        if (typeof target === 'function') {
+            const property = target.prototype;
+            if (!property[symbolField]) {
+                property[symbolField] = defaultValue;
+            }
+            return property[symbolField];
+        }
+        if (typeof target === 'object') {
+            if (!target[symbolField]) {
+                target[symbolField] = defaultValue;
+            }
+            return target[symbolField];
+        }
+        return undefined;
+    }
+
+    static waitImmediately(...args) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                resolve(args)
+            }, 0);
+        });
+    }
+
+    static flagDecoratorByParams(params) {
+
+        if (params.length === 0) {
+            return {isCustomParams: true};
+        }
+
+        const flagCaseMap = {
+            isClassType: (params) => {
+                return params.length === 1 && typeof params[0] === 'function';
+            },
+            isMethodType: (params) => {
+                return params.length === 3 && typeof params[1] === 'string' && typeof params[2].value === 'function';
+            },
+            isPropertyType: (params) => {
+                return params.length === 3 && typeof params[1] === 'string' && !params[2].value;
+            }
+        };
+
+        const basicFlag = {
+            isClassType: flagCaseMap.isClassType(params),
+            isMethodType: flagCaseMap.isMethodType(params),
+            isPropertyType: flagCaseMap.isPropertyType(params)
+        };
+
+        return {
+            ...basicFlag,
+            isCustomParams: !basicFlag.isClassType && !basicFlag.isMethodType && !basicFlag.isPropertyType
+        };
+    }
+
+    static fromEntries(entries) {
+        const result = {};
+        entries.forEach(entry => {
+            result[entry[0] || ''] = result[entry[1]]
+        });
+        return result;
+    }
+}
