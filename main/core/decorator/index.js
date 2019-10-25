@@ -1,4 +1,4 @@
-export {Bean} from './Bean'
-export {Boot} from './Boot'
-export {Section} from './Section'
-export {Autowired} from './Autowired'
+export {Bean, BeanDescribe} from './Bean'
+export {Boot, BootDescribe} from './Boot'
+export {Section, SectionDescribe} from './Section'
+export {Autowired, AutowiredDescribe} from './Autowired'
