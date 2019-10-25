@@ -1,5 +1,5 @@
-const {Bean, Autowired, Section, Boot} = require('./core/decorator');
-const {BeanDescribe, AutowiredDescribe, SectionDescribe, BootDescribe} = require('./core/decorator');
+const {Bean, Autowired, Section, Boot, Property, EnergyWire} = require('./core/decorator');
+const {BeanDescribe, AutowiredDescribe, SectionDescribe, BootDescribe, PropertyDescribe, EnergyWireDescribe} = require('./core/decorator');
 const {BasicAnnotationDescribe} = require('./core/decorator-generator/BasicAnnotationDescribe');
 
 const AnnotationGenerator = require('./core/decorator-generator/AnnotationGenerator').default;
@@ -17,12 +17,16 @@ exports.Bean = Bean;
 exports.Autowired = Autowired;
 exports.Section = Section;
 exports.Boot = Boot;
+exports.Property = Property;
+exports.EnergyWire = EnergyWire;
 
 exports.BeanDescribe = BeanDescribe;
 exports.AutowiredDescribe = AutowiredDescribe;
 exports.SectionDescribe = SectionDescribe;
 exports.BootDescribe = BootDescribe;
 exports.BasicAnnotationDescribe = BasicAnnotationDescribe;
+exports.PropertyDescribe = PropertyDescribe;
+exports.EnergyWireDescribe = EnergyWireDescribe;
 
 exports.AnnotationGenerator = AnnotationGenerator;
 exports.AnnotationUtils = AnnotationUtils;

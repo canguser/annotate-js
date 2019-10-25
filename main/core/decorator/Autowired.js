@@ -11,7 +11,8 @@ class AutowiredDescribe extends PropertyDescribe {
             beanName: '',
             propertyName: '',
             isMapProperty: false
-        })
+        });
+        this.allowClassWorks = false;
     }
 
     applyProperty(property) {

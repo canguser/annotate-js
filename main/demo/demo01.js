@@ -1,5 +1,6 @@
 import AnnotationGenerator from "../core/decorator-generator/AnnotationGenerator";
 import {Autowired, Bean, Boot, Section, SectionDescribe} from "../core/decorator";
+import {EnergyWire} from "../core/decorator/EnergyWire";
 
 const LogCallMethod = AnnotationGenerator.generate(
     class LogCallMethod extends SectionDescribe {
@@ -25,13 +26,14 @@ class Configuration {
     @Autowired({beanName: 'HelloWorld', isMapProperty: true})
     sayHi;
 
-    @Autowired({beanName: 'bootBean', propertyName: 'port', isMapProperty: true})
+    @EnergyWire('bootBean.port')
     syncPort;
 }
 
 @Bean
 @LogCallMethod
 class HelloWorld {
+
 
     sayHello() {
         return 'hello express-annotate!';
@@ -50,6 +52,7 @@ class HelloWorld {
         }
     })
     testError() {
+        console.log(this.sayHi());
         throw new Error('Weather is too cold!');
         return 'nothing happened.'
     }
@@ -62,10 +65,10 @@ class BootApplication {
     @Autowired('Configuration')
     config;
 
-    @Autowired({beanName: 'Configuration', isMapProperty: true})
+    @EnergyWire('Configuration')
     port;
 
-    @Autowired({name: 'testError', beanName: 'HelloWorld', isMapProperty: true})
+    @EnergyWire('HelloWorld')
     testError;
 
     main() {
