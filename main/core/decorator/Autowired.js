@@ -1,7 +1,8 @@
-import {BasicAnnotationDescribe} from "../decorator-generator/BasicAnnotationDescribe";
 import AnnotationGenerator from "../decorator-generator/AnnotationGenerator";
+import {PropertyDescribe} from "./Property";
+import AnnotationUtils from "../utils/AnnotationUtils";
 
-class AutowiredDescribe extends BasicAnnotationDescribe {
+class AutowiredDescribe extends PropertyDescribe {
 
     constructor() {
         super();
@@ -31,6 +32,40 @@ class AutowiredDescribe extends BasicAnnotationDescribe {
 
     get isMapProperty() {
         return this.getParams('isMapProperty');
+    }
+
+    hookProperty({proxy,container}) {
+        super.hookProperty({proxy, container});
+        const valueGetWay = (autowired) => {
+            const targetBean = container.getBean(autowired.beanName);
+            return autowired.isMapProperty ? targetBean[autowired.propertyName] : targetBean;
+        };
+        proxy.register('getOwnPropertyDescriptor',
+            ([target, property], {next}) => {
+                const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
+                if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
+                    const autowired = propertyEntity.findAnnotationByType(Autowired);
+                    return {
+                        get: () => valueGetWay(autowired),
+                        configurable: true,
+                        enumerable: true
+                    }
+                } else {
+                    next();
+                }
+            }
+        );
+        proxy.register('get',
+            ([target, property], {next}) => {
+                const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
+                if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
+                    const autowired = propertyEntity.findAnnotationByType(Autowired);
+                    return valueGetWay(autowired);
+                } else {
+                    next();
+                }
+            }
+        )
     }
 
 }

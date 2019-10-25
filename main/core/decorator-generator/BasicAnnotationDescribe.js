@@ -1,4 +1,3 @@
-import AnnotationGenerator from "./AnnotationGenerator";
 import AnnotationUtils from "../utils/AnnotationUtils";
 import Constants from "../utils/Constants";
 import ClassEntity from "../entities/ClassEntity";
@@ -9,7 +8,7 @@ class BasicAnnotationDescribe {
     params = {};
 
     getParams(key) {
-        if (key == null){
+        if (key == null) {
             return this.params;
         }
         return this.params[key];
@@ -65,13 +64,8 @@ class BasicAnnotationDescribe {
     storageClassDecorator(targetType) {
         this.classEntity.addAnnotation(this);
         const instance = new targetType();
-        Object.getOwnPropertyNames(instance).forEach(field => {
-            this.applyProperty(new PropertyEntity(field, instance[field]));
-        });
-        for (let field of Object.getOwnPropertyNames(Object.getPrototypeOf(instance))) {
-            if (field !== 'constructor'){
-                this.applyProperty(new PropertyEntity(field, instance[field]));
-            }
+        for (let field of AnnotationUtils.getPropertyNames(instance)) {
+            this.scanProperty(instance, field);
         }
     }
 
@@ -81,17 +75,22 @@ class BasicAnnotationDescribe {
         this.applyProperty(propertyEntity);
     }
 
-    applyProperty(property) {
+    applyProperty(property, extraAnnotations = []) {
         const name = property.name;
         const propertyEntity = this.classEntity.properties.find(p => p.name === name) || new PropertyEntity(name);
         propertyEntity.initialValue = property.initialValue;
         property.annotations.forEach(annotation => {
             propertyEntity.addAnnotation(annotation);
         });
+        extraAnnotations.forEach(annotation => {
+            propertyEntity.addAnnotation(annotation);
+        });
         this.classEntity.addProperty(propertyEntity);
+    }
+
+    scanProperty(instance, field) {
+        this.applyProperty(new PropertyEntity(field, instance[field]));
     }
 }
 
-const Annotation = AnnotationGenerator.generate(BasicAnnotationDescribe);
-
-export {Annotation, BasicAnnotationDescribe};
+export {BasicAnnotationDescribe};

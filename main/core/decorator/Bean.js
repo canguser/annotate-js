@@ -6,6 +6,7 @@ import AnnotationGenerator from "../decorator-generator/AnnotationGenerator";
 import AnnotationUtils from "../utils/AnnotationUtils";
 import {Autowired} from "./Autowired";
 import {Section} from "./Section";
+import {Property} from "./Property";
 
 class BeanDescribe extends BasicAnnotationDescribe {
 
@@ -41,43 +42,21 @@ class BeanDescribe extends BasicAnnotationDescribe {
 
     proxyRegister(proxy) {
         this.wireProperty(proxy);
-        this.applySection(proxy);
+        this.applySections(proxy);
     }
 
     wireProperty(proxy) {
-        const valueGetWay = (autowired) => {
-            const targetBean = this.container.getBean(autowired.beanName);
-            return autowired.isMapProperty ? targetBean[autowired.propertyName] : targetBean;
-        };
-        proxy.register('getOwnPropertyDescriptor',
-            ([target, property], {next}) => {
-                const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
-                if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
-                    const autowired = propertyEntity.findAnnotationByType(Autowired);
-                    return {
-                        get: () => valueGetWay(autowired),
-                        configurable: true,
-                        enumerable: true
-                    }
-                } else {
-                    next();
-                }
+        for (let field of AnnotationUtils.getPropertyNames(this.originInstance)) {
+            const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
+            if (propertyEntity) {
+                propertyEntity.getAnnotationsByType(Property).forEach(property => {
+                    property.hookProperty({proxy, container: this.container});
+                });
             }
-        );
-        proxy.register('get',
-            ([target, property], {next}) => {
-                const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
-                if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
-                    const autowired = propertyEntity.findAnnotationByType(Autowired);
-                    return valueGetWay(autowired);
-                } else {
-                    next();
-                }
-            }
-        )
+        }
     }
 
-    applySection(proxy) {
+    applySections(proxy) {
         proxy.register('get',
             (args, {next}) => {
                 const [target, property, rec] = args;
@@ -97,19 +76,44 @@ class BeanDescribe extends BasicAnnotationDescribe {
                         }
                     }
                     return rec::function (...args) {
-                        const baseParams = {origin, params: args, annotations: propertyEntity.annotations};
-                        beforeList.forEach(before => {
-                            this::before(baseParams);
-                        });
-                        const returnValue = this::origin(...args);
-                        const returnValueStack = [returnValue];
-                        return afterList.reduce((last, after) => {
-                            returnValueStack.push(last);
-                            return this::after({
-                                ...baseParams, returnValueStack,
-                                lastValue: returnValueStack[returnValueStack.length - 1]
-                            })
-                        }, returnValue);
+                        try {
+                            const baseParams = {
+                                origin, params: args, annotations: propertyEntity.annotations, propertyEntity
+                            };
+                            beforeList.forEach(before => {
+                                this::before(baseParams);
+                            });
+                            const returnValue = this::origin(...args);
+                            const returnValueStack = [returnValue];
+                            return afterList.reduce((last, after) => {
+                                returnValueStack.push(last);
+                                return this::after({
+                                    ...baseParams, returnValueStack,
+                                    lastValue: returnValueStack[returnValueStack.length - 1]
+                                })
+                            }, returnValue);
+                        } catch (error) {
+                            // DO Responsibility chain
+                            let isSolved = false;
+                            let result;
+                            const params = {
+                                resolve(res) {
+                                    isSolved = true;
+                                    result = res;
+                                }, error
+                            };
+                            for (const section of sections) {
+                                const errorHandler = section.getParams('onError');
+                                section::errorHandler(params);
+                                if (isSolved) {
+                                    break;
+                                }
+                            }
+                            if (!isSolved) {
+                                throw error;
+                            }
+                            return result;
+                        }
                     };
                 } else {
                     next();
@@ -120,12 +124,21 @@ class BeanDescribe extends BasicAnnotationDescribe {
 
     onCreated() {
         // console.log(`Decorator type [${this.constructor.name}] works on the bean [${this.beanName}]`)
+        for (let field of AnnotationUtils.getPropertyNames(this.originInstance)) {
+            const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
+            if (propertyEntity) {
+                propertyEntity.getAnnotationsByType(Property).forEach(property => {
+                    property.onClassBuilt();
+                });
+            }
+        }
         // to be override
     }
 
     get beanName() {
         return this.getParams('name') || this.targetType.name;
     }
+
 }
 
 const Bean = AnnotationGenerator.generate(BeanDescribe);

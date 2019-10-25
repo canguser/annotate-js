@@ -1,4 +1,5 @@
 import Constants from "./Constants";
+import PropertyEntity from "../entities/PropertyEntity";
 
 const STORAGE_SYMBOL_MAP = {};
 
@@ -98,6 +99,19 @@ export default class AnnotationUtils {
         entries.forEach(entry => {
             result[entry[0] || ''] = result[entry[1]]
         });
+        return result;
+    }
+
+    static getPropertyNames(target) {
+        const result = [];
+        Object.getOwnPropertyNames(target).forEach(field => {
+            result.push(field);
+        });
+        for (let field of Object.getOwnPropertyNames(Object.getPrototypeOf(target))) {
+            if (field !== 'constructor') {
+                result.push(field);
+            }
+        }
         return result;
     }
 }
