@@ -45,12 +45,31 @@ class BeanDescribe extends BasicAnnotationDescribe {
     }
 
     wireProperty(proxy) {
+        const valueGetWay = (autowired) => {
+            const targetBean = this.container.getBean(autowired.beanName);
+            return autowired.isMapProperty ? targetBean[autowired.propertyName] : targetBean;
+        };
+        proxy.register('getOwnPropertyDescriptor',
+            ([target, property], {next}) => {
+                const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
+                if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
+                    const autowired = propertyEntity.findAnnotationByType(Autowired);
+                    return {
+                        get: () => valueGetWay(autowired),
+                        configurable: true,
+                        enumerable: true
+                    }
+                } else {
+                    next();
+                }
+            }
+        );
         proxy.register('get',
             ([target, property], {next}) => {
                 const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
                 if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
                     const autowired = propertyEntity.findAnnotationByType(Autowired);
-                    return this.container.getBean(autowired.beanName || propertyEntity.name);
+                    return valueGetWay(autowired);
                 } else {
                     next();
                 }

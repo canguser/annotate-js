@@ -17,7 +17,7 @@ class BootDescribe extends BeanDescribe {
         super.onCreated();
         AnnotationUtils.waitImmediately()
             .then(() => {
-                this.targetBean[this.methodName]();
+                this.targetBean[this.methodName].call(this.targetBean);
             })
             .catch(e => {
                 console.warn(e);

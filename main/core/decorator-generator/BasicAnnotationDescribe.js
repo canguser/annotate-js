@@ -9,6 +9,9 @@ class BasicAnnotationDescribe {
     params = {};
 
     getParams(key) {
+        if (key == null){
+            return this.params;
+        }
         return this.params[key];
     }
 

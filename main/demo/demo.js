@@ -10,8 +10,8 @@ class Class1 {
 
 @Bean
 class Class2 {
-    @Autowired('poi')
-    class1;
+    @Autowired({beanName: 'poi', isMapProperty: true})
+    l;
 
     @Autowired('Class1')
     class2;
@@ -26,6 +26,7 @@ class BootClass {
     class2;
 
     main() {
-        console.log(this.class1, this.class2);
+        console.log(this.class2.l);
+        console.log(this);
     }
 }
