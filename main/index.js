@@ -2,16 +2,16 @@ const {Bean, Autowired, Section, Boot} = require('./core/decorator');
 const {BeanDescribe, AutowiredDescribe, SectionDescribe, BootDescribe} = require('./core/decorator');
 const {Annotation, BasicAnnotationDescribe} = require('./core/decorator-generator/BasicAnnotationDescribe');
 
-const AnnotationGenerator = require('./core/decorator-generator/AnnotationGenerator');
-const AnnotationUtils = require('./core/utils/AnnotationUtils');
-const BasicBeanContainer = require('./core/container/BasicBeanContainer');
-const BasicScanner = require('./core/scanner/BasicScanner');
-const Injector = require('./core/injector');
-const ProxyHandlerRegister = require('./core/register/ProxyHandlerRegister');
+const AnnotationGenerator = require('./core/decorator-generator/AnnotationGenerator').default;
+const AnnotationUtils = require('./core/utils/AnnotationUtils').default;
+const BasicBeanContainer = require('./core/container/BasicBeanContainer').default;
+const BasicScanner = require('./core/scanner/BasicScanner').default;
+const Injector = require('./core/injector').default;
+const ProxyHandlerRegister = require('./core/register/ProxyHandlerRegister').default;
 const ClassEntity = require('./core/entities/ClassEntity');
-const PropertyEntity = require('./core/entities/PropertyEntity');
-const HasAnnotations = require('./core/entities/HasAnnotations');
-const SimpleFactory = require('./core/factory/SimpleFactory');
+const PropertyEntity = require('./core/entities/PropertyEntity').default;
+const HasAnnotations = require('./core/entities/HasAnnotations').default;
+const SimpleFactory = require('./core/factory/SimpleFactory').default;
 
 exports.Annotation = Annotation;
 exports.Bean = Bean;
