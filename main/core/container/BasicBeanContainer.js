@@ -13,8 +13,8 @@ export default class BasicBeanContainer {
         this.beanMap.set(name, bean);
     }
 
-    hasBean(name){
-        return this.beanMap.has(name);
+    hasBean(name) {
+        return this.beanMap.has(name) && !!this.getBean(name);
     }
 
 }

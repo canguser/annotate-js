@@ -50,12 +50,13 @@ class BasicAnnotationDescribe {
             this.classEntity = this.storage[Constants.CLASS_ENTITY] || new ClassEntity(
                 (typeof args[0] === 'function') ? args[0] : args[0].constructor
             );
-            if (flagMap.isClassType) {
-                this.storageClassDecorator(...args);
-            }
+            AnnotationUtils.applyClassEntity(args[0], this.classEntity);
             if (flagMap.isPropertyType || flagMap.isMethodType) {
                 // mark the decorate
                 this.storageInnerDecorator(...args);
+            }
+            if (flagMap.isClassType) {
+                this.storageClassDecorator(...args);
             }
             AnnotationUtils.applyClassEntity(args[0], this.classEntity);
         }

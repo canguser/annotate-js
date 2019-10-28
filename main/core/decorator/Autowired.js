@@ -35,25 +35,27 @@ class AutowiredDescribe extends PropertyDescribe {
         return this.getParams('isMapProperty');
     }
 
-    hookProperty({proxy,container}) {
+    hookProperty({proxy, container}) {
         super.hookProperty({proxy, container});
         const valueGetWay = (autowired) => {
             const targetBean = container.getBean(autowired.beanName);
-            return autowired.isMapProperty ? targetBean[autowired.propertyName] : targetBean;
+            const targetProperty = targetBean[autowired.propertyName];
+            return autowired.isMapProperty ? (typeof targetProperty === 'function' ? targetProperty.bind(targetBean) : targetProperty) : targetBean;
         };
         proxy.register('getOwnPropertyDescriptor',
             ([target, property], {next}) => {
                 const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
                 if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
                     const autowired = propertyEntity.findAnnotationByType(Autowired);
-                    return {
-                        get: () => valueGetWay(autowired),
-                        configurable: true,
-                        enumerable: true
+                    if (container.hasBean(autowired.beanName)) {
+                        return {
+                            get: () => valueGetWay(autowired),
+                            configurable: true,
+                            enumerable: true
+                        }
                     }
-                } else {
-                    next();
                 }
+                next();
             }
         );
         proxy.register('get',
@@ -61,10 +63,11 @@ class AutowiredDescribe extends PropertyDescribe {
                 const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
                 if (propertyEntity && propertyEntity.hasAnnotations(Autowired)) {
                     const autowired = propertyEntity.findAnnotationByType(Autowired);
-                    return valueGetWay(autowired);
-                } else {
-                    next();
+                    if (container.hasBean(autowired.beanName)) {
+                        return valueGetWay(autowired);
+                    }
                 }
+                next();
             }
         )
     }

@@ -3,19 +3,24 @@ export default class HasAnnotations {
     annotationsSet = new Set();
 
     getAnnotationsByType(type) {
-        return this.getAnnotationsByDescribe(type.describeType);
+        const describes = type.describeTypes;
+        return this.annotations.filter(a => describes.reduce((is, describe) => is && (a instanceof describe), true));
     }
 
     findAnnotationByType(type) {
-        return this.findAnnotationByDescribe(type.describeType);
+        const describes = type.describeTypes;
+        return this.annotations.find(a => describes.reduce((is, describe) => is && (a instanceof describe), true));
     }
 
-    getAnnotationsByDescribe(describe) {
-        return this.annotations.filter(a => a instanceof describe);
+    getAnnotationsByDescribe(describe, ...moreDescribes) {
+        const describes = [describe, ...moreDescribes];
+        return this.annotations.filter(a => describes.reduce((is, describe) => is || (a instanceof describe), false));
     }
 
-    findAnnotationByDescribe(describe) {
-        return this.annotations.find(a => a instanceof describe);
+    findAnnotationByDescribe(describe, ...moreDescribes) {
+        const describes = [describe, ...moreDescribes];
+        // console.log(describes);
+        return this.annotations.find(a => describes.reduce((is, describe) => is || (a instanceof describe), false));
     }
 
     get annotations() {
@@ -31,7 +36,7 @@ export default class HasAnnotations {
     }
 
     hasAnnotations(type) {
-        return !!this.annotations.find(a => type.describeType ? (a instanceof type.describeType) : true);
+        return !!this.findAnnotationByDescribe(...type.describeTypes);
     }
 
 

@@ -24,7 +24,7 @@ export default class AnnotationGenerator {
                 }
             }, null)
         };
-        resultDecorator.describeType = describe;
+        resultDecorator.describeTypes = [describe,...impls];
         return resultDecorator;
     }
 }

@@ -6,6 +6,12 @@ class PropertyDescribe extends BasicAnnotationDescribe {
 
     allowClassWorks = true;
 
+
+    constructor() {
+        super();
+        // todo - Set matching property roles.
+    }
+
     hookProperty({proxy}) {
         // TO be override.
     }

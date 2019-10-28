@@ -1,5 +1,4 @@
 import Constants from "./Constants";
-import PropertyEntity from "../entities/PropertyEntity";
 
 const STORAGE_SYMBOL_MAP = {};
 
@@ -9,10 +8,13 @@ export default class AnnotationUtils {
         const {CLASS_STORAGE, CLASS_ENTITY} = Constants;
         const prototype = Object.getPrototypeOf(instance);
         const classStorageField = this.getUniqueField(CLASS_STORAGE)
-        const storage = prototype[classStorageField];
-        if (storage) {
-            return storage[CLASS_ENTITY];
+        let storage = prototype[classStorageField];
+        if (!storage) {
+            storage = {};
+            prototype[classStorageField] = storage;
         }
+        return storage[CLASS_ENTITY];
+
     }
 
     static getPropertyEntity(instance, property) {
