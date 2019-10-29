@@ -18,7 +18,8 @@ const LogCallMethod = AnnotationGenerator.generate(
     LogCallMethodDescribe
 );
 
-const LoggedBean = AnnotationGenerator.generate(BeanDescribe,[LogCallMethodDescribe]);
+const LoggedBean = AnnotationGenerator.generate(BeanDescribe, [LogCallMethodDescribe]);
+
 
 @Bean
 class Configuration {
@@ -91,3 +92,7 @@ class BootApplication {
         console.log(this.testError());
     }
 }
+
+const a = new HelloWorld();
+
+console.log(a.testError());

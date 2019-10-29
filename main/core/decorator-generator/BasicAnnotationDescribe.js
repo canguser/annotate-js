@@ -60,7 +60,10 @@ class BasicAnnotationDescribe {
             }
             AnnotationUtils.applyClassEntity(args[0], this.classEntity);
         }
+
+        return this.onReturn();
     }
+
 
     storageClassDecorator(targetType) {
         this.classEntity.addAnnotation(this);
@@ -91,6 +94,10 @@ class BasicAnnotationDescribe {
 
     scanProperty(instance, field) {
         this.applyProperty(new PropertyEntity(field, instance[field]));
+    }
+
+    onReturn() {
+        return undefined;
     }
 }
 

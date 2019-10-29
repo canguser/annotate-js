@@ -132,12 +132,12 @@ class BeanDescribe extends BasicAnnotationDescribe {
         proxy.register('get', (args, {next}) => {
             const [target, property, rec] = args;
             const value = Reflect.get(...args);
-            const origin = v => v;
+            const get_value = v => v;
             const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
             if (propertyEntity && propertyEntity.hasAnnotations(Section)) {
                 const sections = propertyEntity.getAnnotationsByType(Section);
-                const actionMap = getSectionAction(sections, origin);
-                return rec::buildHookFunction({...actionMap, origin, propertyEntity, sections})(value);
+                const actionMap = getSectionAction(sections, get_value);
+                return rec::buildHookFunction({...actionMap, origin: get_value, propertyEntity, sections})(value);
             } else {
                 next();
             }
@@ -159,6 +159,13 @@ class BeanDescribe extends BasicAnnotationDescribe {
 
     get beanName() {
         return this.getParams('name') || this.targetType.name;
+    }
+
+    onReturn() {
+        // override
+        const proxyRegister = new ProxyHandlerRegister();
+        proxyRegister.register('construct', () => this.targetBean);
+        return new Proxy(this.targetType, proxyRegister.export());
     }
 
 }

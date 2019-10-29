@@ -19,7 +19,8 @@ export default class AnnotationUtils {
 
     static getPropertyEntity(instance, property) {
         const classEntity = this.getClassEntity(instance);
-        return classEntity.getProperty(property);
+        // console.log(classEntity);
+        return classEntity && classEntity.getProperty(property);
     }
 
     static applyClassEntity(target, classEntity) {
