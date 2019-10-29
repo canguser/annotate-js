@@ -12,11 +12,11 @@ class PropertyDescribe extends BasicAnnotationDescribe {
         // todo - Set matching property roles.
     }
 
-    hookProperty({proxy}) {
+    hookProperty({proxy, container}) {
         // TO be override.
     }
 
-    onClassBuilt() {
+    onClassBuilt(propertyEntity, classDecorator) {
         // TO be override.
     }
 

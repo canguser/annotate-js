@@ -150,7 +150,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
             const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
             if (propertyEntity) {
                 propertyEntity.getAnnotationsByType(Property).forEach(property => {
-                    property.onClassBuilt();
+                    property.onClassBuilt(propertyEntity, this);
                 });
             }
         }
