@@ -68,7 +68,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
                     beforeList.push(section.getParams('before'));
                     const after = section.getParams('after');
                     if (after) {
-                        afterList.unshift(after);
+                        afterList.push(after);
                     }
                 }
             }
