@@ -6,7 +6,7 @@ import AnnotationUtils from "../core/utils/AnnotationUtils";
 class LogCallMethodDescribe extends SectionDescribe {
     constructor() {
         super();
-        this.params.priority = 1000;
+        this.params.priority = 0;
         this.params.before = ({origin}) => {
             console.log(origin.name, 'called');
         };
@@ -53,6 +53,7 @@ class HelloWorld {
 
     @Section({
         after({lastValue}) {
+            console.log(lastValue);
             return lastValue + 100
         }
     })
@@ -67,6 +68,7 @@ class HelloWorld {
         }
     })
     testError() {
+        console.log(this);
         console.log(this.sayHi(), this.a);
         throw new Error('Weather is too cold!');
         return 'nothing happened.'
@@ -135,7 +137,7 @@ class AsyncTest {
         }
     })
     getId() {
-        throw new Error('asdasd');
+        // throw new Error('asdasd');
         return 'do test';
     }
 }

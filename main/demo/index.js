@@ -1,2 +1,2 @@
 require("@babel/register");
-require('./demo01');
+require('./demo');
