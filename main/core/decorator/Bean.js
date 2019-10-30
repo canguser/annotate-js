@@ -14,6 +14,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
         Object.assign(this.params, {
             name: '',
             args: [],
+            isSectionSurround: true,
             containerType: BasicBeanContainer
         })
     }
@@ -136,6 +137,86 @@ class BeanDescribe extends BasicAnnotationDescribe {
                 }
             };
 
+        const getHookedMethod = ({section, origin, propertyEntity, isAsync, lastOrigin}) => {
+            if (typeof origin !== 'function') {
+                return origin;
+            }
+            const before = section.getParams('before');
+            const after = section.getParams('after');
+            const onError = section.getParams('onError');
+
+            if (section.isAsync || isAsync) {
+                return function (...args) {
+                    const baseParams = {
+                        origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin
+                    };
+                    let result = new Promise(resolve => {
+                        resolve(this::before(baseParams))
+                    }).then(() => {
+                        return this::lastOrigin(...args);
+                    });
+                    if (after) {
+                        result = result.then(returnValue => {
+                            return this::after({...baseParams, lastValue: returnValue})
+                        });
+                    }
+                    return result.catch(error => {
+                        let isSolved = false;
+                        let message = '';
+                        const resolve = (msg) => {
+                            message = msg;
+                            isSolved = true;
+                        };
+                        return Promise.resolve(this::onError({error, resolve}))
+                            .then(solution => {
+                                if (!isSolved) {
+                                    throw error;
+                                }
+                                return message || solution;
+                            });
+                    })
+                }
+            }
+            return function (...args) {
+                try {
+                    const baseParams = {
+                        origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin
+                    };
+                    this::before(baseParams);
+                    let returnValue = this::lastOrigin(...args);
+                    if (after) {
+                        returnValue = this::after({...baseParams, lastValue: returnValue});
+                    }
+                    return returnValue;
+                } catch (error) {
+                    let isSolved = false;
+                    let message = '';
+                    const resolve = (msg) => {
+                        message = msg;
+                        isSolved = true;
+                    };
+                    const result = this::onError({error, resolve});
+                    if (!isSolved) {
+                        throw error;
+                    }
+                    return message || result;
+                }
+            }
+        };
+
+        const buildSurroundMethod = ({origin, sections, propertyEntity}) => {
+            sections = [...sections];
+            const isAsync = !!sections.find(s => s.getParams('isAsync'));
+            sections.sort((a, b) => {
+                return b.priority - a.priority
+            });
+            return function (...args) {
+                return sections.reduce((lastMethod, section) => getHookedMethod({
+                    section, lastOrigin: lastMethod, propertyEntity, isAsync, origin
+                }), origin).bind(this)(...args);
+            }
+        };
+
         // get function
         proxy.register('get',
             (args, {next}) => {
@@ -144,6 +225,9 @@ class BeanDescribe extends BasicAnnotationDescribe {
                 const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
                 if (typeof origin === 'function' && propertyEntity && propertyEntity.hasAnnotations(Section)) {
                     const sections = propertyEntity.getAnnotationsByType(Section);
+                    if (this.getParams('isSectionSurround')) {
+                        return rec::buildSurroundMethod({sections, origin, propertyEntity});
+                    }
                     const actionMap = getSectionAction(sections, origin);
                     return rec::buildHookFunction({...actionMap, origin, propertyEntity});
                 } else {
@@ -160,6 +244,9 @@ class BeanDescribe extends BasicAnnotationDescribe {
             const propertyEntity = AnnotationUtils.getPropertyEntity(target, property);
             if (propertyEntity && propertyEntity.hasAnnotations(Section)) {
                 const sections = propertyEntity.getAnnotationsByType(Section);
+                if (this.getParams('isSectionSurround')) {
+                    return rec::buildSurroundMethod({sections, origin: get_value, propertyEntity})(value);
+                }
                 const actionMap = getSectionAction(sections, get_value);
                 return rec::buildHookFunction({...actionMap, origin: get_value, propertyEntity})(value);
             } else {
