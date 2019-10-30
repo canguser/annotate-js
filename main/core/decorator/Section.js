@@ -8,8 +8,14 @@ class SectionDescribe extends PropertyDescribe {
         Object.assign(this.params, {
             after: undefined,
             before: () => undefined,
-            onError: () => undefined
+            onError: () => undefined,
+            isAsync: false,
+            priority: 0
         });
+    }
+
+    get priority() {
+        return this.getParams('priority');
     }
 
 }

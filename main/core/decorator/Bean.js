@@ -27,7 +27,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
         this.targetType = targetType;
         const name = this.beanName;
         this.originInstance = new targetType(...this.getParams('args'));
-        const proxyRegister = SimpleFactory.getInstance(ProxyHandlerRegister);
+        const proxyRegister = new ProxyHandlerRegister();
         const container = this.container = SimpleFactory.getInstance(this.getParams('containerType'));
         this.targetBean = container.getBean(name);
         if (!(this.targetBean && this.targetBean.constructor === targetType)) {
@@ -56,9 +56,13 @@ class BeanDescribe extends BasicAnnotationDescribe {
     }
 
     applySections(proxy) {
-        const getSectionAction = (sections, origin) => {
+        const getSectionAction = (sections = [], origin) => {
             const beforeList = [];
             const afterList = [];
+            sections = [...sections];
+            sections.sort((a, b) => {
+                return a.priority - b.priority;
+            });
             for (let section of sections) {
                 if (typeof origin === 'function') {
                     beforeList.push(section.getParams('before'));
@@ -68,14 +72,26 @@ class BeanDescribe extends BasicAnnotationDescribe {
                     }
                 }
             }
-            return {beforeList, afterList};
+            return {beforeList, afterList, isAsync: sections.find(s => s.getParams('isAsync'))};
         };
         const buildHookFunction =
-            ({beforeList, afterList, propertyEntity, sections, origin}) => function (...args) {
+            ({beforeList, afterList, propertyEntity, sections, origin, isAsync}) => function (...args) {
                 try {
                     const baseParams = {
                         origin, params: args, annotations: propertyEntity.annotations, propertyEntity
                     };
+                    if (isAsync) {
+                        return AnnotationUtils.executeAsyncInQueue(beforeList, {params: baseParams, context: this})
+                            .then(() => {
+                                return Promise.resolve(this::origin(...args));
+                            })
+                            .then(returnValue => {
+                                const returnValueStack = [returnValue];
+                                return AnnotationUtils.executeAsyncInQueue(afterList, {
+                                    params: baseParams, context: this, returnValueStack
+                                })
+                            });
+                    }
                     beforeList.forEach(before => {
                         this::before(baseParams);
                     });

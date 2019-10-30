@@ -1,10 +1,12 @@
 import AnnotationGenerator from "../core/decorator-generator/AnnotationGenerator";
 import {Autowired, Bean, BeanDescribe, Boot, Section, SectionDescribe} from "../core/decorator";
 import {EnergyWire} from "../core/decorator/EnergyWire";
+import AnnotationUtils from "../core/utils/AnnotationUtils";
 
 class LogCallMethodDescribe extends SectionDescribe {
     constructor() {
         super();
+        this.params.priority = 1000;
         this.params.before = ({origin}) => {
             console.log(origin.name, 'called');
         };
@@ -84,15 +86,49 @@ class BootApplication {
     @EnergyWire('HelloWorld')
     testError;
 
+    @EnergyWire('AsyncTest')
+    getId;
+
+
     main() {
         console.log(this.config, this.port);
         console.log(this.config.sayHello());
         console.log(this.config.sayHi());
         console.log(this.config.syncPort);
         console.log(this.testError());
+        console.time('async test');
+        this.getId().then(v => {
+            console.log(v);
+            console.timeEnd('async test');
+        })
     }
 }
 
 const a = new HelloWorld();
 
 console.log(a.testError());
+
+
+// @Bean
+@LoggedBean
+class AsyncTest {
+
+    @Section({
+        after({lastValue}) {
+            return lastValue + ' error?'
+        }
+    })
+    @Section({
+        isAsync: true,
+        priority: 1,
+        before({params}) {
+            return AnnotationUtils.wait({ms: 1000});
+        },
+        after({lastValue}) {
+            return AnnotationUtils.wait({ms: 2000}).then(() => lastValue + ' - test successfully.');
+        }
+    })
+    getId() {
+        return 'do test';
+    }
+}

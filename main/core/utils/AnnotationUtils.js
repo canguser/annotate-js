@@ -60,10 +60,14 @@ export default class AnnotationUtils {
     }
 
     static waitImmediately(...args) {
+        return AnnotationUtils.wait({args})
+    }
+
+    static wait({ms = 0, args = []} = {}) {
         return new Promise(resolve => {
             setTimeout(() => {
                 resolve(args)
-            }, 0);
+            }, ms);
         });
     }
 
@@ -116,5 +120,25 @@ export default class AnnotationUtils {
             }
         }
         return result;
+    }
+
+    static executeAsyncInQueue(methods = [], {params = {}, context, returnValueStack = []} = {}) {
+        return new Promise(resolve => {
+            methods = [...methods].filter(m => typeof m === 'function');
+            returnValueStack = [...returnValueStack];
+            let lastPromise = Promise.resolve();
+            while (methods.length > 0) {
+                const method = methods.shift();
+                lastPromise = lastPromise.then(() => {
+                    return Promise.resolve(method.call(context, {
+                        ...params, returnValueStack, lastValue: returnValueStack[returnValueStack.length - 1]
+                    })).then(value => {
+                        returnValueStack.push(value);
+                        return value;
+                    });
+                });
+            }
+            resolve(lastPromise);
+        })
     }
 }
