@@ -68,11 +68,36 @@ class BeanDescribe extends BasicAnnotationDescribe {
                     beforeList.push(section.getParams('before'));
                     const after = section.getParams('after');
                     if (after) {
-                        afterList.push(after);
+                        afterList.unshift(after);
                     }
                 }
             }
-            return {beforeList, afterList, isAsync: sections.find(s => s.getParams('isAsync'))};
+            return {beforeList, afterList, isAsync: sections.find(s => s.getParams('isAsync')), sections};
+        };
+        const dealError = ({error, sections}) => {
+            // DO Responsibility chain
+            let isSolved = false;
+            let result;
+            const params = {
+                resolve(res) {
+                    isSolved = true;
+                    result = res;
+                }, error
+            };
+            // more priority, more execute
+            sections = [...sections];
+            sections.reverse();
+            for (const section of sections) {
+                const errorHandler = section.getParams('onError');
+                section::errorHandler(params);
+                if (isSolved) {
+                    break;
+                }
+            }
+            if (!isSolved) {
+                throw error;
+            }
+            return result;
         };
         const buildHookFunction =
             ({beforeList, afterList, propertyEntity, sections, origin, isAsync}) => function (...args) {
@@ -83,14 +108,16 @@ class BeanDescribe extends BasicAnnotationDescribe {
                     if (isAsync) {
                         return AnnotationUtils.executeAsyncInQueue(beforeList, {params: baseParams, context: this})
                             .then(() => {
-                                return Promise.resolve(this::origin(...args));
+                                return new Promise(resolve => resolve(this::origin(...args)));
                             })
                             .then(returnValue => {
                                 const returnValueStack = [returnValue];
                                 return AnnotationUtils.executeAsyncInQueue(afterList, {
                                     params: baseParams, context: this, returnValueStack
                                 })
-                            });
+                            }).catch(error => {
+                                return dealError({error, sections});
+                            })
                     }
                     beforeList.forEach(before => {
                         this::before(baseParams);
@@ -105,26 +132,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
                         });
                     }, returnValue);
                 } catch (error) {
-                    // DO Responsibility chain
-                    let isSolved = false;
-                    let result;
-                    const params = {
-                        resolve(res) {
-                            isSolved = true;
-                            result = res;
-                        }, error
-                    };
-                    for (const section of sections) {
-                        const errorHandler = section.getParams('onError');
-                        section::errorHandler(params);
-                        if (isSolved) {
-                            break;
-                        }
-                    }
-                    if (!isSolved) {
-                        throw error;
-                    }
-                    return result;
+                    return dealError({error, sections});
                 }
             };
 
@@ -137,7 +145,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
                 if (typeof origin === 'function' && propertyEntity && propertyEntity.hasAnnotations(Section)) {
                     const sections = propertyEntity.getAnnotationsByType(Section);
                     const actionMap = getSectionAction(sections, origin);
-                    return rec::buildHookFunction({...actionMap, origin, propertyEntity, sections});
+                    return rec::buildHookFunction({...actionMap, origin, propertyEntity});
                 } else {
                     next();
                 }
@@ -153,7 +161,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
             if (propertyEntity && propertyEntity.hasAnnotations(Section)) {
                 const sections = propertyEntity.getAnnotationsByType(Section);
                 const actionMap = getSectionAction(sections, get_value);
-                return rec::buildHookFunction({...actionMap, origin: get_value, propertyEntity, sections})(value);
+                return rec::buildHookFunction({...actionMap, origin: get_value, propertyEntity})(value);
             } else {
                 next();
             }

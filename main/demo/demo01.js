@@ -116,19 +116,26 @@ class AsyncTest {
     @Section({
         after({lastValue}) {
             return lastValue + ' error?'
+        },
+        onError({resolve, error}) {
+            resolve('get a error1234?')
         }
     })
     @Section({
         isAsync: true,
-        priority: 1,
+        priority: 2,
         before({params}) {
             return AnnotationUtils.wait({ms: 1000});
         },
         after({lastValue}) {
             return AnnotationUtils.wait({ms: 2000}).then(() => lastValue + ' - test successfully.');
+        },
+        onError({resolve, error}) {
+            resolve('get a error?')
         }
     })
     getId() {
+        throw new Error('asdasd');
         return 'do test';
     }
 }
