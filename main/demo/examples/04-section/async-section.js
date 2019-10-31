@@ -148,7 +148,7 @@ class AsyncSectionTest {
     }
 }
 
-@Boot
+// @Boot
 class Application {
 
     @Autowired

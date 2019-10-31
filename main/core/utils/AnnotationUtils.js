@@ -104,7 +104,7 @@ export default class AnnotationUtils {
     static fromEntries(entries) {
         const result = {};
         entries.forEach(entry => {
-            result[entry[0] || ''] = result[entry[1]]
+            result[entry[0] || ''] = entry[1]
         });
         return result;
     }

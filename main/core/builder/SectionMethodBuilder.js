@@ -21,7 +21,7 @@ export default class SectionMethodBuilder {
         return this.origin || this.target[this.name];
     }
 
-    set originMethod(origin){
+    set originMethod(origin) {
         this.origin = origin;
     }
 
@@ -30,7 +30,7 @@ export default class SectionMethodBuilder {
         return this;
     }
 
-    setOriginMethod(origin){
+    setOriginMethod(origin) {
         this.originMethod = origin;
         return this;
     }
@@ -107,7 +107,7 @@ export default class SectionMethodBuilder {
                 };
                 this::before(baseParams);
                 let returnValue = this::lastOrigin(...args);
-                if (after) {
+                if (after && typeof after === 'function') {
                     returnValue = this::after({...baseParams, lastValue: returnValue});
                 }
                 return returnValue;
