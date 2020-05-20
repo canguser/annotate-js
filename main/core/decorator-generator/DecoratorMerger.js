@@ -2,7 +2,7 @@ import {BasicAnnotationDescribe} from "../decorator-generator/BasicAnnotationDes
 import AnnotationUtils from "../utils/AnnotationUtils";
 import AnnotationGenerator from "../decorator-generator/AnnotationGenerator";
 
-class DecoratorDescribe extends BasicAnnotationDescribe {
+class DecoratorMergerDescribe extends BasicAnnotationDescribe {
 
 
     constructor() {
@@ -43,6 +43,6 @@ class DecoratorDescribe extends BasicAnnotationDescribe {
     }
 }
 
-const Decorator = AnnotationGenerator.generate(DecoratorDescribe);
+const DecoratorMerger = AnnotationGenerator.generate(DecoratorMergerDescribe);
 
-export {DecoratorDescribe, Decorator};
+export {DecoratorMergerDescribe, DecoratorMerger};

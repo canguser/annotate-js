@@ -1,14 +1,14 @@
-import {Decorator} from "../../../core/decorator/Decorator";
+import {DecoratorMerger} from "../../../core/decorator-generator/DecoratorMerger";
 import {Autowired, Bean, Boot, Section} from "../../../core/decorator";
 
-@Decorator({with: [Bean, Section]})
+@DecoratorMerger({with: [Bean, Section]})
 class MyLoggedBean {
     before({origin}) {
         console.log(origin.name + ' called');
     }
 }
 
-@MyLoggedBean()
+@MyLoggedBean
 class Class1 {
     sayHello() {
         console.log('hello');
