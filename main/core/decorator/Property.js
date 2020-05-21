@@ -9,6 +9,9 @@ class PropertyDescribe extends BasicAnnotationDescribe {
 
     constructor() {
         super();
+        Object.assign(this.params, {
+            priority: 0
+        });
         // todo - Set matching property roles.
     }
 

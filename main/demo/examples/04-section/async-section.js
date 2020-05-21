@@ -119,7 +119,8 @@ class AsyncSectionTest {
                         console.timeEnd('think for problem')
                     });
             },
-            isAsync: true
+            isAsync: true,
+            priority:1
         }
     )
     @Section(
@@ -137,6 +138,7 @@ class AsyncSectionTest {
                 console.log(error.message);
                 resolve(error.message);
             },
+            priority:2
             // isAsync: true
         }
     )
@@ -148,7 +150,7 @@ class AsyncSectionTest {
     }
 }
 
-// @Boot
+@Boot
 class Application {
 
     @Autowired

@@ -35,6 +35,10 @@ class AutowiredDescribe extends PropertyDescribe {
         return this.getParams('isMapProperty');
     }
 
+    get defaultKey() {
+        return 'beanName'
+    }
+
     hookProperty({proxy, container}) {
         super.hookProperty({proxy, container});
         const valueGetWay = (autowired) => {

@@ -16,7 +16,7 @@ class Class1 {
 }
 
 
-@Boot
+// @Boot
 class Application {
 
     @Autowired

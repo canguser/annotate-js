@@ -94,16 +94,35 @@ class BeanDescribe extends BasicAnnotationDescribe {
         })
     }
 
+    /**
+     * when the bean created, the property annotate is all ready
+     */
     onCreated() {
-        // console.log(`Decorator type [${this.constructor.name}] works on the bean [${this.beanName}]`)
-        for (let field of AnnotationUtils.getPropertyNames(this.originInstance)) {
-            const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
-            if (propertyEntity) {
-                propertyEntity.getAnnotationsByType(Property).forEach(property => {
-                    property.onClassBuilt(propertyEntity, this);
-                });
-            }
-        }
+
+        console.log(`Decorator type [${this.constructor.name}] works on the bean [${this.beanName}]`)
+
+        // get all annotates of properties sort by priority
+        const allPropertyAnnotates = AnnotationUtils.flat(
+            AnnotationUtils.getPropertyNames(this.originInstance)
+                .map(field => {
+                    const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
+                    if (propertyEntity) {
+                        return (propertyEntity.getAnnotationsByType(Property) || []).map(annotate => ({
+                            annotate, propertyEntity
+                        }));
+                    }
+                    return [];
+                }), 2)
+            .sort((a, b) => {
+                return b.annotate.getParams('priority') - a.annotate.getParams('priority')
+            });
+
+
+        // call each annotate
+        allPropertyAnnotates.forEach(({annotate, propertyEntity}) => {
+            annotate.onClassBuilt(propertyEntity, this);
+        });
+
         // to be override
     }
 
