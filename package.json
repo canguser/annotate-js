@@ -1,6 +1,6 @@
 {
   "name": "@palerock/annotate-js",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "",
   "main": "source/index.js",
   "scripts": {
@@ -11,7 +11,9 @@
   "files": [
     "main",
     "source",
-    "package.json"
+    "package.json",
+    "LICENSE",
+    "readme.md"
   ],
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -42,5 +44,5 @@
     "nodemon": "^1.19.2"
   },
   "author": "cangshi",
-  "license": "ISC"
+  "license": "Apache License 2.0"
 }
