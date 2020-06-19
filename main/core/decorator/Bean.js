@@ -51,7 +51,16 @@ class BeanDescribe extends BasicAnnotationDescribe {
             const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
             if (propertyEntity) {
                 propertyEntity.getAnnotationsByType(Property).forEach(property => {
-                    property.hookProperty({proxy, container: this.container});
+                    property.hookProperty({
+                        proxy: {
+                            register(...args) {
+                                return proxy.registerProperty(property.propertyName, ...args);
+                            },
+                            getOriginProxy() {
+                                return proxy;
+                            }
+                        }, container: this.container
+                    });
                 });
             }
         }

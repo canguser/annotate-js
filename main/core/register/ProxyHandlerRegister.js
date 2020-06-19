@@ -11,6 +11,17 @@ export default class ProxyHandlerRegister {
         this.refresh();
     }
 
+    registerProperty(property, method, handler) {
+        this.register(method, function (args, actions) {
+                const [target, p] = args;
+                if (p === property) {
+                    return handler(args, actions);
+                }
+                actions.next();
+            }
+        )
+    }
+
     unregister(method, handler) {
         let handlers = this.methodHandlersMap[method] || [];
         handlers = handlers.filter(h => h !== handler);
