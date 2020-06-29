@@ -1,4 +1,5 @@
-# Annotate JS
+# Annotate JS [![gitee.png](https://palerock.cn/api-provider/files/view?identity=L2FydGljbGUvaW1hZ2UvMjAyMDA2MjkxNTQyMTMwNzVXcWZyU2dTbC5wbmc=&w=20)](https://gitee.com/HGJing/annotate-js) [![github.png](https://palerock.cn/api-provider/files/view?identity=L2FydGljbGUvaW1hZ2UvMjAyMDA2MjkxNjU3NDkzMDkybWNLRXhHMi5wbmc=&w=20)](https://github.com/canguser/annotate-js)
+
 Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 而实现的一套注解框架，我们可以通过这套框架实现类似 Java 中的依赖注入，以及面向切面编程等，适用于 Node 服务器与常规的 Javascript 开发。
 ## 快速开始
 ### 引入
@@ -120,7 +121,7 @@ class MyBeanDescribe extends BeanDescribe {
     proxyRegister(proxy) {
         super.proxyRegister(proxy);
         // 这是使用 proxy 去注册时，是处于 proxy chain 的最后，如果前面的所有相关 proxy 都调用了 next 才能执行到这里
-        proxy.register('get', ([...args], {next}) => {
+        proxy.register('get', ([...args], {next}) =&gt; {
             if (!Reflect.get(...args)) {
                 return 'Hello Proxy';
             }
@@ -149,7 +150,7 @@ class MyPropertyDescribe extends PropertyDescribe {
     hookProperty({proxy, container}) {
         super.hookProperty({proxy, container});
 
-        proxy.register('get', ([target, property, receiver], {next}) => {
+        proxy.register('get', ([target, property, receiver], {next}) =&gt; {
             // 在这里劫持该 property 的 get 方法，用法于 Proxy 类似
 
             // 获取真实的属性值, 也就是你声明的值
