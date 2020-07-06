@@ -214,14 +214,14 @@ class BootEntry {
 
 
 ### 目录
-#### [一、预置注解](预置注解)
-  - [`@Bean`](#@Bean)
-  - [`@Boot`](#@Boot)
-  - [`@Autowired`](#@Autowired)
-  - [`@EnergyWire`](#@EnergyWire)
-  - [`@Property`](#@Property)
-  - [`@Section`](#@Section)
-#### [二、项目目录扫描](项目目录扫描)
+#### [一、预置注解](#预置注解)
+  - [`@Bean`](#bean)
+  - [`@Boot`](#boot)
+  - [`@Autowired`](#autowired)
+  - [`@EnergyWire`](#energyWire)
+  - [`@Property`](#property)
+  - [`@Section`](#section)
+#### [二、项目目录扫描](#项目目录扫描)
 
 ### 预置注解
 #### `@Bean`
