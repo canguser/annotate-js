@@ -283,7 +283,7 @@ class MyComponent2 {
 
 该注解用于定义程序入口
 
-功能及参数继承于 [`@Bean`](#@Bean)
+功能及参数继承于 [`@Bean`](#bean)
 
 默认参数：`name`
 
