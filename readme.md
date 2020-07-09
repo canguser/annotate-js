@@ -1,6 +1,22 @@
 # Annotate JS [![gitee.png](https://palerock.cn/api-provider/files/view?identity=L2FydGljbGUvaW1hZ2UvMjAyMDA2MjkxNTQyMTMwNzVXcWZyU2dTbC5wbmc=&w=15)](https://gitee.com/HGJing/annotate-js) [![github.png](https://palerock.cn/api-provider/files/view?identity=L2FydGljbGUvaW1hZ2UvMjAyMDA2MjkxNjU3NDkzMDkybWNLRXhHMi5wbmc=&w=15)](https://github.com/canguser/annotate-js)
 
 Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 而实现的一套注解框架，我们可以通过这套框架实现类似 Java 中的依赖注入，以及面向切面编程等，适用于 Node 服务器与常规的 Javascript 开发。
+
+### 目录
+#### [快速开始](#快速开始)
+- **[引入](#引入)**
+- **[开始使用](#开始使用)**
+- **[实现自定义注解](#实现自定义注解)**
+#### [API文档](#api文档)
+- **[预置注解](#预置注解)**
+    - [`@Bean`](#bean)
+    - [`@Boot`](#boot)
+    - [`@Property`](#property)
+    - [`@Autowired`](#autowired)
+    - [`@EnergyWire`](#energyWire)
+    - [`@Section`](#section)
+- **[项目目录扫描](#项目目录扫描)**
+
 ## 快速开始
 ### 引入
 ```
@@ -211,17 +227,6 @@ class BootEntry {
 
 ```
 ## API文档
-
-
-### 目录
-#### [一、预置注解](#预置注解)
-  - [`@Bean`](#bean)
-  - [`@Boot`](#boot)
-  - [`@Property`](#property)
-  - [`@Autowired`](#autowired)
-  - [`@EnergyWire`](#energyWire)
-  - [`@Section`](#section)
-#### [二、项目目录扫描](#项目目录扫描)
 
 ### 预置注解
 #### `@Bean`
