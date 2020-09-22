@@ -80,7 +80,7 @@ class BasicAnnotationDescribe {
     }
 
     applyProperty(property, extraAnnotations = []) {
-        const name = this.propertyName = property.name;
+        const name = this.beanPropertyName = property.name;
         const propertyEntity = this.classEntity.properties.find(p => p.name === name) || new PropertyEntity(name);
         propertyEntity.initialValue = property.initialValue;
         property.annotations.forEach(annotation => {

@@ -54,7 +54,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
                     property.hookProperty({
                         proxy: {
                             register(...args) {
-                                return proxy.registerProperty(property.propertyName, ...args);
+                                return proxy.registerProperty(property.beanPropertyName, ...args);
                             },
                             getOriginProxy() {
                                 return proxy;

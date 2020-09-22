@@ -2,12 +2,15 @@
 
 Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 而实现的一套注解框架，我们可以通过这套框架实现类似 Java 中的依赖注入，以及面向切面编程等，适用于 Node 服务器与常规的 Javascript 开发。
 
+---
+
 ### 目录
 
 **[快速开始](#快速开始)**
 - **[引入](#引入)**
 - **[开始使用](#开始使用)**
 - **[实现自定义注解](#实现自定义注解)**  
+- **[项目目录扫描](#项目目录扫描)**
 
 **[API文档](#api文档)**
 - **[预置注解](#预置注解)**
@@ -17,8 +20,10 @@ Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 
     - [`@Autowired`](#autowired)
     - [`@EnergyWire`](#energyWire)
     - [`@Section`](#section)
-- **[项目目录扫描](#项目目录扫描)**
+    
+**[文档持续撰写中…](#文档持续撰写中)**
 
+---
 ## 快速开始
 ### 引入
 ```
@@ -228,6 +233,20 @@ class BootEntry {
 }
 
 ```
+### 项目目录扫描  
+**环境要求：仅限 NodeJS 后台项目**  
+在 NodeJS 环境中，我们可以使用 Scanner 对项目中的所有 JS 文件进行扫描，以实现加载多个 JS 文件中的多个组件  
+例：  
+```javascript
+import BasicScanner from "@palerock/annotate-js";
+
+new BasicScanner().setContext(__dirname).scan(
+    ['./examples/01-basic/*'] // 项目路径，* 是通配符
+);
+```
+
+---
+
 ## API文档
 
 ### 预置注解
@@ -349,7 +368,7 @@ class MyComponent2 {
     - 可选 
 - `propertyName`
     - 类型：`String`
-    - 默认值：`'''`
+    - 默认值：`''`
     - 描述：只有在参数中的 `isMapProperty` 为 `true` 时生效，指定注入 `bean` 中的成员属性名
     - 可选 
 
@@ -376,15 +395,52 @@ class MyComponent2 {
     - 可选 
     - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
 - `isMapProperty`
-    - 类型：`Boolean`
-    - 默认值：`false`
-    - 描述：在该注解中，若 `propertyName` 或同义表达不为空，该值默认为 `true`
+    - 永远为 `true` 更改无效
     - 可选 
 - `propertyName`
     - 类型：`String`
-    - 默认值：`'''`
+    - 默认值：被装饰的属性名
     - 描述：指定注入 `bean` 中的成员属性名
     - 可选 
+
+**简单示例如下：**
+```javascript
+@Bean
+class APIService {
+
+    API_KEY = 'API Key';
+
+    api01() {
+        console.log('api 01 called', this.API_KEY);
+    }
+
+    api02() {
+        console.log('api 02 called', this.API_KEY);
+    }
+}
+
+@Boot
+class TestBoot {
+
+    @EnergyWire('APIService')
+    api01;
+
+    @EnergyWire({
+        beanName: 'APIService',
+        propertyName: 'api02'
+    })
+    api02;
+
+    @EnergyWire('APIService.api02')
+    api03;
+
+    main() {
+        this.api01(); // api 01 called API Key
+        this.api02(); // api 02 called API Key
+        this.api03(); // api 02 called API Key
+    }
+}
+```
 
 #### `@Section`
 
@@ -436,17 +492,5 @@ class MyComponent2 {
     - 描述：该参数表示整个 `@Section` 是否异步允许
     - 注意：若由多个 `@Section` 注解装饰于同一个属性，其中任一一个注解被标示为 `isAsync = true`, 则所有的 `@Section` 注解都为异步运行
     - 可选 
-
-### 项目目录扫描  
-**环境要求：仅限 NodeJS 后台项目**  
-在 NodeJS 环境中，我们可以使用 Scanner 对项目中的所有 JS 文件进行扫描，以实现加载多个 JS 文件中的多个组件  
-例：  
-```javascript
-import BasicScanner from "@palerock/annotate-js";
-
-new BasicScanner().setContext(__dirname).scan(
-    ['./examples/01-basic/*'] // 项目路径，* 是通配符
-);
-```
-
+ 
 ### 文档持续撰写中...
