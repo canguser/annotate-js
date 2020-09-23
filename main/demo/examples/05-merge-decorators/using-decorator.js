@@ -1,7 +1,7 @@
 import {DecoratorMerger} from "../../../core/decorator-generator/DecoratorMerger";
 import {Autowired, Bean, Boot, Section} from "../../../core/decorator";
 
-@DecoratorMerger({with: [Bean, Section]})
+@DecoratorMerger([Bean, Section])
 class MyLoggedBean {
     before({origin}) {
         console.log(origin.name + ' called');
@@ -16,7 +16,7 @@ class Class1 {
 }
 
 
-// @Boot
+@Boot
 class Application {
 
     @Autowired

@@ -150,7 +150,7 @@ export default class AnnotationUtils {
      */
     static flat(array, deep = Infinity) {
 
-        const flat = Array.prototype.flat || function(deep = Infinity) {
+        const flat = Array.prototype.flat || function (deep = Infinity) {
             if (deep < 1) {
                 return this;
             }
@@ -167,6 +167,9 @@ export default class AnnotationUtils {
         };
 
         return flat.call(array, deep);
+    }
 
+    static isConfigurableObject(obj) {
+        return Object.prototype.toString.call(obj) === '[object Object]'
     }
 }

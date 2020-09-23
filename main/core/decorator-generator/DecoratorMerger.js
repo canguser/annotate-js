@@ -4,6 +4,7 @@ import AnnotationGenerator from "../decorator-generator/AnnotationGenerator";
 
 class DecoratorMergerDescribe extends BasicAnnotationDescribe {
 
+    targetType;
 
     constructor() {
         super();
@@ -18,24 +19,35 @@ class DecoratorMergerDescribe extends BasicAnnotationDescribe {
         this.mergeDecorators();
     }
 
+    get defaultKey() {
+        return 'with'
+    }
 
     mergeDecorators() {
+
+        // get target decorated class
         const target = new this.targetType();
+
         const propertyMap = AnnotationUtils.fromEntries(
-            [...Object.getOwnPropertyNames(target), ...Object.getOwnPropertyNames(Object.getPrototypeOf(target))]
-                .map(key => [key, target[key]])
+            [
+                ...Object.getOwnPropertyNames(target),
+                ...Object.getOwnPropertyNames(Object.getPrototypeOf(target))
+            ].map(key => [key, target[key]])
         );
 
-        this.decorators = this.getParams('with').map(
-            d => d instanceof BasicAnnotationDescribe ? [d] : d.describeTypes
-        ).filter(d => d != null).flat().map(d =>
-            class MergedDecorators extends d {
-                constructor() {
-                    super();
-                    Object.assign(this.params, propertyMap);
-                }
-            }
-        );
+        this.decorators = this.getParams('with')
+            .map(d => d instanceof BasicAnnotationDescribe ? [d] : d.describeTypes)
+            .filter(d => d != null)
+            .flat()
+            .map(
+                d =>
+                    class MergedDecorators extends d {
+                        constructor() {
+                            super();
+                            Object.assign(this.params, propertyMap);
+                        }
+                    }
+            );
     }
 
     onReturn() {

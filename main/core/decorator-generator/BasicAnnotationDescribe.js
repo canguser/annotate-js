@@ -6,6 +6,7 @@ import PropertyEntity from "../entities/PropertyEntity";
 class BasicAnnotationDescribe {
 
     params = {};
+    args = [];
 
     getParams(key) {
         if (key == null) {
@@ -25,17 +26,22 @@ class BasicAnnotationDescribe {
     export(...args) {
 
         const flagMap = AnnotationUtils.flagDecoratorByParams(args);
+        this.args = args;
 
         if (flagMap.isCustomParams && args.length > 0) {
-
-            if (typeof args[0] !== 'object') {
-                this.params[this.defaultKey] = args[0];
-            } else {
-                Object.assign(this.params, args[0]);
-            }
+            this.applyDefaultArgs();
         }
 
         return this.onDecorate.bind(this);
+    }
+
+    applyDefaultArgs() {
+        const {args} = this;
+        if (!AnnotationUtils.isConfigurableObject(args[0])) {
+            this.params[this.defaultKey] = args[0];
+        } else {
+            Object.assign(this.params, args[0]);
+        }
     }
 
     onDecorate(...args) {
@@ -71,17 +77,30 @@ class BasicAnnotationDescribe {
         for (let field of AnnotationUtils.getPropertyNames(instance)) {
             this.scanProperty(instance, field);
         }
+        this.onStorageFinished({
+            classEntity: this.classEntity
+        });
+    }
+
+    onStorageFinished({classEntity, PropertyEntity}) {
     }
 
     storageInnerDecorator(target, name) {
         const propertyEntity = new PropertyEntity(name);
         propertyEntity.addAnnotation(this);
         this.applyProperty(propertyEntity);
+        this.onStorageFinished({propertyEntity})
     }
 
     applyProperty(property, extraAnnotations = []) {
+
+        // store property name only using for property annotates
         const name = this.beanPropertyName = property.name;
+
+        // find exist property
         const propertyEntity = this.classEntity.properties.find(p => p.name === name) || new PropertyEntity(name);
+
+        // apply to add new annotates & values
         propertyEntity.initialValue = property.initialValue;
         property.annotations.forEach(annotation => {
             propertyEntity.addAnnotation(annotation);
@@ -89,6 +108,8 @@ class BasicAnnotationDescribe {
         extraAnnotations.forEach(annotation => {
             propertyEntity.addAnnotation(annotation);
         });
+
+        // added to class if not exist (added to property set that is auto duplicate removal)
         this.classEntity.addProperty(propertyEntity);
     }
 

@@ -3,6 +3,8 @@ const {BeanDescribe, AutowiredDescribe, SectionDescribe, BootDescribe, PropertyD
 const {BasicAnnotationDescribe} = require('./core/decorator-generator/BasicAnnotationDescribe');
 
 const AnnotationGenerator = require('./core/decorator-generator/AnnotationGenerator').default;
+const {Annotate, AnnotateDescribe, DefaultParam, DefaultParamDescribe, DynamicParam, DynamicParamDescribe} = require('./core/decorator-generator/Annotate');
+const {DecoratorMerger, DecoratorMergerDescribe} = require('./core/decorator-generator/DecoratorMerger');
 const AnnotationUtils = require('./core/utils/AnnotationUtils').default;
 const BasicBeanContainer = require('./core/container/BasicBeanContainer').default;
 const BasicScanner = require('./core/scanner/BasicScanner').default;
@@ -14,19 +16,27 @@ const HasAnnotations = require('./core/entities/HasAnnotations').default;
 const SimpleFactory = require('./core/factory/SimpleFactory').default;
 
 exports.Bean = Bean;
+exports.Annotate = Annotate;
 exports.Autowired = Autowired;
+exports.DefaultParam = DefaultParam;
+exports.DynamicParam = DynamicParam;
 exports.Section = Section;
 exports.Boot = Boot;
 exports.Property = Property;
 exports.EnergyWire = EnergyWire;
+exports.DecoratorMerger = DecoratorMerger;
 
 exports.BeanDescribe = BeanDescribe;
+exports.AnnotateDescribe = AnnotateDescribe;
+exports.DynamicParamDescribe = DynamicParamDescribe;
+exports.DefaultParamDescribe = DefaultParamDescribe;
 exports.AutowiredDescribe = AutowiredDescribe;
 exports.SectionDescribe = SectionDescribe;
 exports.BootDescribe = BootDescribe;
 exports.BasicAnnotationDescribe = BasicAnnotationDescribe;
 exports.PropertyDescribe = PropertyDescribe;
 exports.EnergyWireDescribe = EnergyWireDescribe;
+exports.DecoratorMergerDescribe = DecoratorMergerDescribe;
 
 exports.AnnotationGenerator = AnnotationGenerator;
 exports.AnnotationUtils = AnnotationUtils;
