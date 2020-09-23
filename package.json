@@ -1,6 +1,6 @@
 {
   "name": "@palerock/annotate-js",
-  "version": "1.2.21",
+  "version": "1.2.22",
   "description": "",
   "main": "source/index.js",
   "types": "types/index.d.ts",
