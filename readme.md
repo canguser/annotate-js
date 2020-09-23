@@ -20,6 +20,9 @@ Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 
     - [`@Autowired`](#autowired)
     - [`@EnergyWire`](#energyWire)
     - [`@Section`](#section)
+    - [`@Annotate`](#annotate)
+    - [`@DefaultParam`](#defaultparam)
+    - [`@DynamicParam`](#dynamicparam)
     
 **[文档持续撰写中…](#文档持续撰写中)**
 
