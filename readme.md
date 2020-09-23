@@ -591,4 +591,88 @@ class TestBoot {
     - 注意：若由多个 `@Section` 注解装饰于同一个属性，其中任一一个注解被标示为 `isAsync = true`, 则所有的 `@Section` 注解都为异步运行
     - 可选 
  
+ #### `@Annotate`
+ 该注解用于生成新的注解，需要作用与 class，新注解的名字即 class 名，使用方法如下：
+ ```javascript
+ // 将注解装饰在需要生成的 class 上
+ @Annotate
+ class MyAnnotate {
+ 
+     /**
+      * 参数区域
+      */
+ 
+     a = 10;
+ 
+     b = 100;
+ }
+ 
+ // 使用生成好的注解
+ @MyAnnotate({a: 50})
+ class TestClass {}
+ ```
+ 通过以上代码我们定义了注解 `@Annotate` 并且将其装饰在 TestClass，并赋值参数 `a` 为 `50`。
+ 
+ 注意：**通过该注解生成的注解目前无法被继承**
+ 
+ 作用范围：`class`
+  
+ 默认参数：无
+  
+ 注解参数：
+ - `extends`
+ 	- 表示生成的注解继承于哪个注解，必须是 `*Describe` 类型
+ 	- 默认：`BasicAnnotationDescribe`
+ 	- 可选
+ 
+ #### `@DefaultParam`
+ 必须与 `@Annotate` 配合使用，只能作用于成员变量，若被该注解装饰表示生成的注解的默认参数即为该注解装饰的变量，例：
+ ```javascript
+ @Annotate
+ class MyAnnotate {
+ 
+     /**
+      * 参数区域
+      */
+ 
+     a = 10;
+ 
+     @DefaultParam
+     b = 100;
+ }
+ 
+ // 默认参数 b 值被设置为 50
+ @MyAnnotate(50)
+ class TestClass {}
+ ```
+ 注意：**若同一注解多个参数装饰该注解，只有第一个生效**
+ #### `@DynamicParam`
+ 必须与 `@Annotate` 配合使用，只能作用于类型为 `function` 的成员变量，若被该注解装饰表示该参数是一个动态方法，所谓动态方法即表示该方法的返回值才是该参数最终的值，该方法接受以下参数（对象形式）：
+ - `classEntity`
+ 	- 表示将被该注解装饰的 class 实体对象
+ 	- 只在生成注解作用于 class 时生效
+ - `propertyEntity`
+ 	- 表示将被该注解装饰的成员变量实体对象
+ 	- 只在生成注解作用于成员变量时生效
+ 例：
+ ```javascript
+ @Annotate
+ class MyAnnotate {
+ 
+     /**
+      * 参数区域
+      */
+ 
+     a = 10;
+ 
+     @DynamicParam
+     b({classEntity}){
+         return classEntity.name;
+     }
+ }
+ 
+ // 参数 b 的值将会被设置为 'TestClass'
+ @MyAnnotate
+ class TestClass {}
+ ```
 ### 文档持续撰写中...
