@@ -62,11 +62,12 @@ export function EnergyWire(params?: {
     name?: string;
     beanName?: string;
     propertyName?: string;
-}): void ;
+} | string): void ;
 
 export function DecoratorMerger(params?: {
     with?: Array<Function>
 } | Array<Function>): void ;
 
 export function DefaultParam(): void ;
+
 export function DynamicParam(): void ;
