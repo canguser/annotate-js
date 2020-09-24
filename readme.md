@@ -29,7 +29,7 @@ Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 
 ---
 ## 快速开始
 ### 引入
-```
+```shell script
 npm install @palerock/annotate-js
 ```
    
@@ -88,7 +88,7 @@ class Init{
 ```
 使用 `@Section` 实现面向切面编程，将以上代码中的 Demo 类修改如下
 ```javascript
-import {Bean, Boot, Autowired, Section} from '@palerock/annotate-js'; 
+import {Bean, Section} from '@palerock/annotate-js'; 
 
 /**
  * 声明一个组件名为 Demo

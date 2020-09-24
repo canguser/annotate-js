@@ -26,7 +26,7 @@ export {
 } from "./describe";
 
 export class AnnotationGenerator {
-    generate: (describe: Function, impls: Array<Function>) => Function
+    static generate: (describe: Function, impls?: Array<Function>) => Function
 }
 
 export class AnnotationUtils {
