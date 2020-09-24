@@ -49,7 +49,6 @@ npm install @palerock/annotate-js
         "legacy": true
       }
     ],
-    "@babel/plugin-proposal-function-bind",
     [
       "@babel/plugin-proposal-class-properties",
       {

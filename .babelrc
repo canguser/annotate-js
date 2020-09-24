@@ -11,18 +11,12 @@
         "legacy": true
       }
     ],
-    "@babel/plugin-proposal-function-bind",
     [
       "@babel/plugin-proposal-class-properties",
       {
         "loose": true
       }
     ],
-    [
-      "@babel/plugin-transform-runtime",
-      {
-        "corejs": 2
-      }
-    ]
+    "@babel/plugin-proposal-function-bind"
   ]
 }
