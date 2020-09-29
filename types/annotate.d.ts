@@ -1,7 +1,9 @@
-export function Annotate(params?: {
+import {BasicAnnotationDescribe} from "./describe";
+
+export function Annotate<T extends BasicAnnotationDescribe>(params?: {
     name?: string;
     defaultParam?: string;
-    extends?: Function
+    extends?: T
 } | string): void;
 
 export function Bean(params?: {

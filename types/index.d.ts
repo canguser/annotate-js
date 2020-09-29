@@ -47,9 +47,9 @@ export class BasicScanner {
 }
 
 export class Injector {
-    inject(params, isLocal: false): Injector;
+    inject(params, isLocal?: false): Injector;
 
-    injectKeyValue(key, value, isLocal: false): Injector;
+    injectKeyValue(key, value, isLocal?: false): Injector;
 
     injectLocalKeyValue(key, value): Injector;
 

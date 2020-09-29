@@ -33,6 +33,10 @@ export class BasicAnnotationDescribe {
 }
 
 export class BeanDescribe extends BasicAnnotationDescribe {
+
+    readonly targetBean: Object;
+    readonly container: Object;
+
     createBean(targetType: Function): void;
 
     proxyRegister(proxy: Object): void;
@@ -43,6 +47,8 @@ export class BeanDescribe extends BasicAnnotationDescribe {
 
     onCreated(): void;
 
+    beforeCreated(): void;
+
     get beanName(): string;
 }
 
@@ -51,7 +57,7 @@ export class PropertyDescribe extends BasicAnnotationDescribe {
 
     hookProperty(params: { proxy: Object, container: Object }): void;
 
-    onClassBuilt(propertyEntity: Object, classDecorator: Object): void;
+    onClassBuilt<T extends BeanDescribe>(propertyEntity: PropertyEntity, classDecorator: T): void;
 }
 
 export class BootDescribe extends BeanDescribe {

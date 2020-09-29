@@ -31,6 +31,7 @@ class BeanDescribe extends BasicAnnotationDescribe {
         const name = this.beanName;
         const proxyRegister = new ProxyHandlerRegister();
         const container = this.container = SimpleFactory.getInstance(this.getParams('containerType'));
+        this.beforeCreated();
         this.targetBean = container.getBean(name);
         if (!(this.targetBean && this.targetBean.constructor === targetType)) {
             this.proxyRegister(proxyRegister);
@@ -121,7 +122,6 @@ class BeanDescribe extends BasicAnnotationDescribe {
                 return b.annotate.getParams('priority') - a.annotate.getParams('priority')
             });
 
-
         // call each annotate
         allPropertyAnnotates.forEach(({annotate, propertyEntity}) => {
             annotate.onClassBuilt(propertyEntity, this);
@@ -137,6 +137,10 @@ class BeanDescribe extends BasicAnnotationDescribe {
      */
     onCreated() {
         // to be override
+    }
+
+    beforeCreated() {
+
     }
 
     get beanName() {
