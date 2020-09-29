@@ -2,7 +2,8 @@ export class BasicAnnotationDescribe {
     params: Object;
     readonly args: Array<any>;
     readonly targetInstance: Object;
-    readonly propertyEntity: Object;
+    readonly classEntity: ClassEntity;
+    readonly propertyEntity: PropertyEntity;
     readonly targetType: Function;
     readonly beanPropertyName: string;
     readonly isDecoratedClass: boolean;
@@ -102,7 +103,7 @@ export class ClassEntity extends HasAnnotations {
 }
 
 
-export class PropertyEntity extends HasAnnotations{
+export class PropertyEntity extends HasAnnotations {
     readonly name: string;
     readonly initialValue: any;
     readonly descriptor: Object;
