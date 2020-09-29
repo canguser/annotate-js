@@ -10,35 +10,35 @@ import SectionMethodBuilder from "../builder/SectionMethodBuilder";
 
 class BeanDescribe extends BasicAnnotationDescribe {
 
+    targetBean;
+    container;
+
     constructor() {
         super();
         Object.assign(this.params, {
             name: '',
-            args: [],
             isSectionSurround: true,
             containerType: BasicBeanContainer
         })
     }
 
-    storageClassDecorator(targetType) {
-        super.storageClassDecorator(targetType);
-        this.createBean(targetType);
+    onClassDecorated({classEntity}) {
+        super.onClassDecorated({classEntity});
+        this.createBean(this.targetType);
     }
 
     createBean(targetType) {
-        this.targetType = targetType;
         const name = this.beanName;
-        this.originInstance = new targetType(...this.getParams('args'));
         const proxyRegister = new ProxyHandlerRegister();
         const container = this.container = SimpleFactory.getInstance(this.getParams('containerType'));
         this.targetBean = container.getBean(name);
         if (!(this.targetBean && this.targetBean.constructor === targetType)) {
             this.proxyRegister(proxyRegister);
-            const proxyInstance = new Proxy(this.originInstance, proxyRegister.export());
+            const proxyInstance = new Proxy(this.targetInstance, proxyRegister.export());
             container.setBean(name, proxyInstance);
             this.targetBean = proxyInstance;
         }
-        this.onCreated();
+        this.invokeProperties();
     }
 
     proxyRegister(proxy) {
@@ -47,8 +47,8 @@ class BeanDescribe extends BasicAnnotationDescribe {
     }
 
     wireProperty(proxy) {
-        for (let field of AnnotationUtils.getPropertyNames(this.originInstance)) {
-            const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
+        for (let field of AnnotationUtils.getPropertyNames(this.targetInstance)) {
+            const propertyEntity = AnnotationUtils.getPropertyEntity(this.targetInstance, field);
             if (propertyEntity) {
                 propertyEntity.getAnnotationsByType(Property).forEach(property => {
                     property.hookProperty({
@@ -103,18 +103,13 @@ class BeanDescribe extends BasicAnnotationDescribe {
         })
     }
 
-    /**
-     * when the bean created, the property annotate is all ready
-     */
-    onCreated() {
-
-        console.log(`Decorator type [${this.constructor.name}] works on the bean [${this.beanName}]`)
+    invokeProperties() {
 
         // get all annotates of properties sort by priority
         const allPropertyAnnotates = AnnotationUtils.flat(
-            AnnotationUtils.getPropertyNames(this.originInstance)
+            AnnotationUtils.getPropertyNames(this.targetInstance)
                 .map(field => {
-                    const propertyEntity = AnnotationUtils.getPropertyEntity(this.originInstance, field);
+                    const propertyEntity = AnnotationUtils.getPropertyEntity(this.targetInstance, field);
                     if (propertyEntity) {
                         return (propertyEntity.getAnnotationsByType(Property) || []).map(annotate => ({
                             annotate, propertyEntity
@@ -132,6 +127,15 @@ class BeanDescribe extends BasicAnnotationDescribe {
             annotate.onClassBuilt(propertyEntity, this);
         });
 
+        console.log(`Decorator type [${this.constructor.name}] works on the bean [${this.beanName}]`)
+
+        this.onCreated();
+    }
+
+    /**
+     * when the bean created, the property annotate is all ready
+     */
+    onCreated() {
         // to be override
     }
 

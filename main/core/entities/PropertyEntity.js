@@ -6,10 +6,15 @@ export default class PropertyEntity extends HasAnnotations {
 
     initialValue;
 
-    constructor(name, initialValue) {
+    descriptor;
+
+    constructor(name, initialValue, descriptor) {
         super();
         this.name = name;
-        this.initialValue = initialValue
+        this.initialValue = initialValue;
+        if (descriptor) {
+            this.descriptor = descriptor;
+        }
     }
 
 }

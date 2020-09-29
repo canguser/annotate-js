@@ -1,32 +1,56 @@
 export class BasicAnnotationDescribe {
     params: Object;
-    getParams: (key: string) => Object;
-    paramsKeys: Array<string>;
-    defaultKey: string;
-    export: (...args: Array<Object>) => Object;
-    onDecorate: (...args: Array<Object>) => Object;
-    storageClassDecorator: (targetType: Function) => void;
-    storageInnerDecorator: (target: Function, name: string) => void;
-    onStorageFinished: (params: { classEntity: Object, PropertyEntity: Object }) => void;
-    applyDefaultArgs: () => void;
-    applyProperty: (property: Object, extraAnnotations: Object) => void;
-    scanProperty: (instance: Object, field: string) => void;
-    onReturn: () => Object;
+    readonly args: Array<any>;
+    readonly targetInstance: Object;
+    readonly propertyEntity: Object;
+    readonly targetType: Function;
+    readonly beanPropertyName: string;
+    readonly isDecoratedClass: boolean;
+    readonly isNewStage: boolean;
+    readonly isDecoratedProperty: boolean;
+
+    getParams(key: string): any;
+
+    get paramsKeys(): Array<string>;
+
+    get defaultKey(): string;
+
+    onStorageFinished(params: { classEntity: ClassEntity, propertyEntity: PropertyEntity }): void;
+
+    onPropertyDecorated(params: { propertyEntity: PropertyEntity }): void;
+
+    onClassDecorated(params: { classEntity: ClassEntity }): void;
+
+    applyDefaultArgs(): void;
+
+    applyProperty(property: Object, extraAnnotations: Object): void;
+
+    scanProperty(instance: Object, field: string): void;
+
+    onReturn(): any;
+
 }
 
 export class BeanDescribe extends BasicAnnotationDescribe {
-    createBean: (targetType: Function) => void;
-    proxyRegister: (proxy: Object) => void;
-    wireProperty: (proxy: Object) => void;
-    applySections: (proxy: Object) => void;
-    onCreated: () => void;
-    beanName: string;
+    createBean(targetType: Function): void;
+
+    proxyRegister(proxy: Object): void;
+
+    wireProperty(proxy: Object): void;
+
+    applySections(proxy: Object): void;
+
+    onCreated(): void;
+
+    get beanName(): string;
 }
 
 export class PropertyDescribe extends BasicAnnotationDescribe {
     allowClassWorks: boolean;
-    hookProperty: (params: { proxy: Object, container: Object }) => void;
-    onClassBuilt: (propertyEntity: Object, classDecorator: Object) => void;
+
+    hookProperty(params: { proxy: Object, container: Object }): void;
+
+    onClassBuilt(propertyEntity: Object, classDecorator: Object): void;
 }
 
 export class BootDescribe extends BeanDescribe {
@@ -44,12 +68,13 @@ export class DefaultParamDescribe extends PropertyDescribe {
 }
 
 export class AnnotateDescribe extends BasicAnnotationDescribe {
-    declareDecorator: () => void;
-    applyPropertyAnnotates: (propertyMap: Object) => void;
+    declareDecorator(): void;
+
+    applyPropertyAnnotates(propertyMap: Object): void;
 }
 
 export class DecoratorMergerDescribe extends BasicAnnotationDescribe {
-    mergeDecorators: () => void;
+    mergeDecorators(): void;
 }
 
 export class AutowiredDescribe extends PropertyDescribe {
@@ -60,4 +85,44 @@ export class AutowiredDescribe extends PropertyDescribe {
 
 export class EnergyWireDescribe extends PropertyDescribe {
     usingEnergy: boolean;
+}
+
+export class ClassEntity extends HasAnnotations {
+    readonly name: string;
+
+    readonly classType: Function;
+
+    get propertyAnnotations(): Array<Object>;
+
+    get properties(): Array<PropertyEntity>;
+
+    addProperty(property: PropertyEntity): void;
+
+    getProperty(propertyName: string): PropertyEntity;
+}
+
+
+export class PropertyEntity extends HasAnnotations{
+    readonly name: string;
+    readonly initialValue: any;
+    readonly descriptor: Object;
+}
+
+
+export class HasAnnotations {
+    getAnnotationsByType<T extends BasicAnnotationDescribe>(type: Function): Array<T>
+
+    findAnnotationByType<T extends BasicAnnotationDescribe>(type: Function): T;
+
+    getAnnotationsByDescribe<T extends BasicAnnotationDescribe>(describe: T, ...moreDescribes: Array<T>): Array<T>
+
+    findAnnotationByDescribe<T extends BasicAnnotationDescribe>(describe: T, ...moreDescribes: Array<T>): Array<T>
+
+    addAnnotation<T extends BasicAnnotationDescribe>(annotation: T): void
+
+    removeAnnotation<T extends BasicAnnotationDescribe>(annotation: T): void
+
+    hasAnnotations(type: Function): boolean
+
+    get annotations(): Array<BasicAnnotationDescribe>;
 }

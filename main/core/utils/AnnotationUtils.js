@@ -77,7 +77,7 @@ export default class AnnotationUtils {
             return {isCustomParams: true};
         }
 
-        const flagCaseMap = {
+        const legacyFlagCaseMap = {
             isClassType: (params) => {
                 return params.length === 1 && typeof params[0] === 'function';
             },
@@ -85,14 +85,26 @@ export default class AnnotationUtils {
                 return params.length === 3 && typeof params[1] === 'string' && typeof params[2].value === 'function';
             },
             isPropertyType: (params) => {
-                return params.length === 3 && typeof params[1] === 'string' && !params[2].value;
+                return params.length === 3 && typeof params[1] === 'string' && !params[2].value
             }
+        };
+
+        const stage01FlagCaseMap = {
+            isStage: params => params.length === 1 && params[0].toString() === '[object Descriptor]',
+            isClassType: descriptor => descriptor.kind === 'class',
+            isMethodType: descriptor => descriptor.kind === 'method',
+            isPropertyType: descriptor => descriptor.kind === 'field',
+        };
+
+        const flagCaseMap = {
+            ...stage01FlagCaseMap.isStage(params) ? stage01FlagCaseMap : legacyFlagCaseMap
         };
 
         const basicFlag = {
             isClassType: flagCaseMap.isClassType(params),
             isMethodType: flagCaseMap.isMethodType(params),
-            isPropertyType: flagCaseMap.isPropertyType(params)
+            isPropertyType: flagCaseMap.isPropertyType(params),
+            isStage: flagCaseMap.isStage && flagCaseMap.isStage(params) || false,
         };
 
         return {

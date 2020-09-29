@@ -5,8 +5,33 @@ import PropertyEntity from "../entities/PropertyEntity";
 
 class BasicAnnotationDescribe {
 
-    params = {};
+    params = {
+        args: [] // only works while decorating class
+    };
     args = [];
+
+    // class only
+    targetInstance;
+
+    // property only
+    propertyEntity;
+
+    // all
+    targetType;
+    beanPropertyName;
+    classEntity;
+
+    // flag
+    isDecoratedClass = false;
+    isNewStage = false;
+
+    get isDecoratedProperty() {
+        return !this.isDecoratedClass;
+    }
+
+    set isDecoratedProperty(value) {
+        this.isDecoratedClass = !value;
+    }
 
     getParams(key) {
         if (key == null) {
@@ -49,6 +74,7 @@ class BasicAnnotationDescribe {
         const flagMap = AnnotationUtils.flagDecoratorByParams(args);
 
         if (!flagMap.isCustomParams) {
+
             this.storage = AnnotationUtils.getTargetStorage(
                 args[0],
                 Constants.CLASS_STORAGE
@@ -57,11 +83,14 @@ class BasicAnnotationDescribe {
                 (typeof args[0] === 'function') ? args[0] : args[0].constructor
             );
             AnnotationUtils.applyClassEntity(args[0], this.classEntity);
+            const resultArgs = [];
             if (flagMap.isPropertyType || flagMap.isMethodType) {
+                this.isDecoratedProperty = true;
                 // mark the decorate
                 this.storageInnerDecorator(...args);
             }
             if (flagMap.isClassType) {
+                this.isDecoratedClass = true;
                 this.storageClassDecorator(...args);
             }
             AnnotationUtils.applyClassEntity(args[0], this.classEntity);
@@ -73,23 +102,23 @@ class BasicAnnotationDescribe {
 
     storageClassDecorator(targetType) {
         this.classEntity.addAnnotation(this);
-        const instance = new targetType();
+        this.targetType = targetType;
+        const instance = this.targetInstance = new targetType(...this.getParams('args'));
         for (let field of AnnotationUtils.getPropertyNames(instance)) {
             this.scanProperty(instance, field);
         }
-        this.onStorageFinished({
-            classEntity: this.classEntity
-        });
+        this.onClassDecorated({classEntity: this.classEntity});
+        this.onStorageFinished({classEntity: this.classEntity});
     }
 
     onStorageFinished({classEntity, PropertyEntity}) {
     }
 
-    storageInnerDecorator(target, name) {
+    storageInnerDecorator(target, name, descriptor) {
         const propertyEntity = new PropertyEntity(name);
+        propertyEntity.descriptor = descriptor;
         propertyEntity.addAnnotation(this);
         this.applyProperty(propertyEntity);
-        this.onStorageFinished({propertyEntity})
     }
 
     applyProperty(property, extraAnnotations = []) {
@@ -102,6 +131,7 @@ class BasicAnnotationDescribe {
 
         // apply to add new annotates & values
         propertyEntity.initialValue = property.initialValue;
+        propertyEntity.descriptor = property.descriptor;
         property.annotations.forEach(annotation => {
             propertyEntity.addAnnotation(annotation);
         });
@@ -111,6 +141,18 @@ class BasicAnnotationDescribe {
 
         // added to class if not exist (added to property set that is auto duplicate removal)
         this.classEntity.addProperty(propertyEntity);
+
+        if (this.isDecoratedProperty) {
+            this.propertyEntity = propertyEntity;
+            this.onPropertyDecorated({propertyEntity});
+            this.onStorageFinished({propertyEntity: this.propertyEntity});
+        }
+    }
+
+    onPropertyDecorated({propertyEntity}) {
+    }
+
+    onClassDecorated({classEntity}) {
     }
 
     scanProperty(instance, field) {
