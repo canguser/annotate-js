@@ -137,8 +137,12 @@ class BasicAnnotationDescribe {
         const propertyEntity = this.classEntity.properties.find(p => p.name === name) || new PropertyEntity(name);
 
         // apply to add new annotates & values
-        propertyEntity.initialValue = property.initialValue;
-        propertyEntity.descriptor = property.descriptor;
+        if (propertyEntity.initialValue === undefined) {
+            propertyEntity.initialValue = property.initialValue;
+        }
+        if (propertyEntity.descriptor === undefined) {
+            propertyEntity.descriptor = property.descriptor;
+        }
         property.annotations.forEach(annotation => {
             propertyEntity.addAnnotation(annotation);
         });
@@ -163,7 +167,7 @@ class BasicAnnotationDescribe {
     }
 
     scanProperty(instance, field) {
-        this.applyProperty(new PropertyEntity(field, instance[field]));
+        this.applyProperty(new PropertyEntity(field, instance));
     }
 
     onReturn() {

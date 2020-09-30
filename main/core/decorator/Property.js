@@ -35,7 +35,7 @@ class PropertyDescribe extends BasicAnnotationDescribe {
      */
     scanProperty(instance, field) {
         if (this.allowClassWorks) {
-            this.applyProperty(new PropertyEntity(field, instance[field]), [this])
+            this.applyProperty(new PropertyEntity(field, instance), [this])
         } else {
             super.scanProperty(instance, field);
         }

@@ -67,8 +67,8 @@ export default class SectionMethodBuilder {
 
         return function (...args) {
             try {
-                const isGetter = 'get' in propertyEntity.descriptor && args.length === 0;
-                const isSetter = 'set' in propertyEntity.descriptor && args.length === 1;
+                const isGetter = 'get' in propertyEntity.descriptor && lastOrigin.name === 'get';
+                const isSetter = 'set' in propertyEntity.descriptor && lastOrigin.name === 'set';
                 const baseParams = {
                     origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin,
                     annotate: section, isGetter, isSetter
