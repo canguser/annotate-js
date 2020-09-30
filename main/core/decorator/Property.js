@@ -15,6 +15,10 @@ class PropertyDescribe extends BasicAnnotationDescribe {
         // todo - Set matching property roles.
     }
 
+    get defaultKey() {
+        return 'priority'
+    }
+
     hookProperty({proxy, container}) {
         // TO be override.
     }

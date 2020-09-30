@@ -3,13 +3,13 @@ import {BasicAnnotationDescribe} from "./describe";
 export function Annotate<T extends BasicAnnotationDescribe>(params?: {
     name?: string;
     defaultParam?: string;
-    extends?: T
+    extends?: T | Function
 } | string): void;
 
 export function Bean(params?: {
     name?: string;
     args?: Array<Object>;
-    isSectionSurround?: boolean;
+    isSectionSurround?: true;
     containerType?: Function;
 } | string): void ;
 
@@ -20,24 +20,30 @@ export function Autowired(params?: {
     propertyName?: string;
 } | string): void ;
 
-export function Section(params?: {
+export function Section<T extends BasicAnnotationDescribe>(params?: {
     after?: (
         params: {
             origin?: Function,
             params?: Object,
-            annotations?: Array<Object>,
+            annotations?: Array<T>,
             propertyEntity?: Object,
             lastOrigin?: Function,
-            lastValue?: Object
+            lastValue?: any,
+            isGetter: boolean,
+            isSetter: boolean,
+            annotate: T
         }
-    ) => Object;
+    ) => any;
     before?: (
         params: {
             origin?: Function,
             params?: Object,
-            annotations?: Array<Object>,
+            annotations?: Array<T>,
             propertyEntity?: Object,
             lastOrigin?: Function,
+            isGetter: boolean,
+            isSetter: boolean,
+            annotate: T
         }
     ) => void;
     onError?: (
@@ -45,8 +51,45 @@ export function Section(params?: {
             error?: Object,
             resolve?: Function,
         }
-    ) => Object;
+    ) => any;
+
 } | number): void ;
+
+export function Surround<T extends BasicAnnotationDescribe>(
+    params?: {
+        after?: (
+            params: {
+                origin?: Function,
+                params?: Object,
+                annotations?: Array<T>,
+                propertyEntity?: Object,
+                lastOrigin?: Function,
+                lastValue?: any,
+                isGetter: boolean,
+                isSetter: boolean,
+                annotate: T
+            }
+        ) => any;
+        before?: (
+            params: {
+                origin?: Function,
+                params?: Object,
+                annotations?: Array<T>,
+                propertyEntity?: Object,
+                lastOrigin?: Function,
+                isGetter: boolean,
+                isSetter: boolean,
+                annotate: T
+            }
+        ) => void;
+        onError?: (
+            params: {
+                error?: Object,
+                resolve?: Function,
+            }
+        ) => any;
+    } | Function
+): void;
 
 export function Boot(params?: {
     name?: string;

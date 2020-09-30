@@ -14,7 +14,7 @@ export default class SectionMethodBuilder {
     }
 
     get sections() {
-        return this.propertyEntity.getAnnotationsByType(Section);
+        return this.propertyEntity.getAnnotationsByType(Section).filter(section => !section.params.independent);
     }
 
     get originMethod() {
@@ -47,68 +47,71 @@ export default class SectionMethodBuilder {
         const _this = this;
         let sections = this.sections;
         sections = [...sections];
-        const isAsync = !!sections.find(s => s.getParams('isAsync'));
         sections.sort((a, b) => {
             return b.priority - a.priority
         });
         return function (...args) {
-            return sections.reduce((lastMethod, section) => _this.getHookedMethod({
-                section, lastOrigin: lastMethod, isAsync
+            return sections.reduce((lastMethod, section) => SectionMethodBuilder.getHookedMethod({
+                section, lastOrigin: lastMethod, propertyEntity: _this.propertyEntity, origin: _this.originMethod
             }), origin).bind(this)(...args);
         }
     };
 
-    getHookedMethod({section, isAsync, lastOrigin}) {
-        const origin = this.originMethod;
-        const propertyEntity = this.propertyEntity;
-        if (typeof origin !== 'function') {
-            return origin;
+    static getHookedMethod({section, lastOrigin, propertyEntity, origin}) {
+        if (typeof lastOrigin !== 'function') {
+            return lastOrigin;
         }
         const before = section.getParams('before');
         const after = section.getParams('after');
         const onError = section.getParams('onError');
 
-        if (section.isAsync || isAsync) {
-            return function (...args) {
-                const baseParams = {
-                    origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin
-                };
-                let result = new Promise(resolve => {
-                    resolve(this::before(baseParams))
-                }).then(() => {
-                    return this::lastOrigin(...args);
-                });
-                if (after) {
-                    result = result.then(returnValue => {
-                        return this::after({...baseParams, lastValue: returnValue})
-                    });
-                }
-                return result.catch(error => {
-                    let isSolved = false;
-                    let message = '';
-                    const resolve = (msg) => {
-                        message = msg;
-                        isSolved = true;
-                    };
-                    return Promise.resolve(this::onError({error, resolve}))
-                        .then(solution => {
-                            if (!isSolved) {
-                                throw error;
-                            }
-                            return message || solution;
-                        });
-                })
-            }
-        }
         return function (...args) {
             try {
+                const isGetter = 'get' in propertyEntity.descriptor && args.length === 0;
+                const isSetter = 'set' in propertyEntity.descriptor && args.length === 1;
                 const baseParams = {
-                    origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin
+                    origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin,
+                    annotate: section, isGetter, isSetter
                 };
-                this::before(baseParams);
-                let returnValue = this::lastOrigin(...args);
-                if (after && typeof after === 'function') {
-                    returnValue = this::after({...baseParams, lastValue: returnValue});
+
+                // parsing before
+                const beforeResult = before.call(this, baseParams);
+                let returnValue;
+                if (beforeResult instanceof Promise) {
+                    returnValue = beforeResult.then(
+                        () => {
+                            return lastOrigin.apply(this, args);
+                        }
+                    )
+                } else {
+                    returnValue = lastOrigin.apply(this, args);
+                }
+
+                // parsing origin
+                if (typeof after === 'function') {
+                    if (returnValue instanceof Promise) {
+                        returnValue = returnValue.then(value => after.call(this, {...baseParams, lastValue: value}))
+                    } else {
+                        returnValue = after.call(this, {...baseParams, lastValue: returnValue});
+                    }
+                }
+
+                if (returnValue instanceof Promise) {
+                    return returnValue.catch(error => {
+                        let isSolved = false;
+                        let message = '';
+                        const resolve = (msg) => {
+                            message = msg;
+                            isSolved = true;
+                        };
+                        return Promise.resolve(onError.call(this, {error, resolve}))
+                            .then(solution => {
+                                if (!isSolved) {
+                                    throw error;
+                                }
+                                return message || solution;
+                            });
+                    });
                 }
                 return returnValue;
             } catch (error) {
@@ -118,7 +121,7 @@ export default class SectionMethodBuilder {
                     message = msg;
                     isSolved = true;
                 };
-                const result = this::onError({error, resolve});
+                const result = onError.call(this, {error, resolve});
                 if (!isSolved) {
                     throw error;
                 }
@@ -140,7 +143,7 @@ export default class SectionMethodBuilder {
                 if (isAsync) {
                     return AnnotationUtils.executeAsyncInQueue(beforeList, {params: baseParams, context: this})
                         .then(() => {
-                            return new Promise(resolve => resolve(this::origin(...args)));
+                            return new Promise(resolve => resolve(origin.apply(this, args)));
                         })
                         .then(returnValue => {
                             const returnValueStack = [returnValue];
@@ -152,13 +155,13 @@ export default class SectionMethodBuilder {
                         })
                 }
                 beforeList.forEach(before => {
-                    this::before(baseParams);
+                    before.call(this, baseParams);
                 });
-                const returnValue = this::origin(...args);
+                const returnValue = origin.call(this, ...args);
                 const returnValueStack = [returnValue];
                 return afterList.reduce((last, after) => {
                     returnValueStack.push(last);
-                    return this::after({
+                    return after.call(this, {
                         ...baseParams, returnValueStack,
                         lastValue: returnValueStack[returnValueStack.length - 1]
                     });
@@ -184,7 +187,7 @@ export default class SectionMethodBuilder {
         sections.reverse();
         for (const section of sections) {
             const errorHandler = section.getParams('onError');
-            section::errorHandler(params);
+            errorHandler.call(section, params);
             if (isSolved) {
                 break;
             }

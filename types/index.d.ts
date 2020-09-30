@@ -8,7 +8,8 @@ export {
     EnergyWire,
     DecoratorMerger,
     DefaultParam,
-    DynamicParam
+    DynamicParam,
+    Surround
 } from "./annotate";
 
 export {

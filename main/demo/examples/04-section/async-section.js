@@ -29,7 +29,10 @@ class MockService {
 
     asyncFetchService(url) {
         if (Math.random() < 1) {
-            throw new Error('syncFetchService got a error');
+            AnnotationUtils.wait({ms: 3000})
+                .then(
+                    () => Promise.reject('asyncFetchService got a error')
+                )
         }
         return AnnotationUtils.wait({ms: 3000, args: {result: {message: `[fetched]: ${url}`}}});
     }
@@ -119,8 +122,7 @@ class AsyncSectionTest {
                         console.timeEnd('think for problem')
                     });
             },
-            isAsync: true,
-            priority:1
+            priority: 1
         }
     )
     @Section(
@@ -138,7 +140,7 @@ class AsyncSectionTest {
                 console.log(error.message);
                 resolve(error.message);
             },
-            priority:2
+            priority: 2
             // isAsync: true
         }
     )
@@ -150,7 +152,7 @@ class AsyncSectionTest {
     }
 }
 
-// @Boot
+@Boot
 class Application {
 
     @Autowired

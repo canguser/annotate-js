@@ -544,7 +544,7 @@ class TestBoot {
 
 #### `@Section`
 
-该注解继承于 [`@Property`](#property)  
+该注解继承于 [`@Property`](#property), 必须与 `@Bean` 一起使用  
 作用范围：`class` 或 `property`，注意只对 `Function` 类型的 `property` 生效 
 当作用于 `class` 时，表示该 `class` 的所有 `property` 都作用于该注解
 
@@ -562,6 +562,10 @@ class TestBoot {
         - propertyEntity: 属性实体，包含属性名等信息
         - lastOrigin: 若同时有多个 `@Section` 注解，外部的 `Section` 可以获取最近一次 `Surround` 的方法
         - lastValue: 表示 `lastOrigin` 的返回值
+        - 以下属性在 @Bean 属性 `isSectionSurround == false` 时无效
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象
     - 返回值: 代替源方法的返回值，如果外部还有 `@Section` 注解，则由 `lastValue` 的形式交由下一个 `Section` 
  - 可选
 - `before`
@@ -574,6 +578,10 @@ class TestBoot {
         - annotations: 该方法上的注解列表 - `Array<Object>`
         - propertyEntity: 属性实体，包含属性名等信息
         - lastOrigin: 若同时有多个 `@Section` 注解，外部的 `Section` 可以获取最近一次 `Surround` 的方法
+        - 以下属性在 @Bean 属性 `isSectionSurround == false` 时无效
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象
     - 返回值: 无特殊用途
     - 可选 
     - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
@@ -589,9 +597,102 @@ class TestBoot {
 - `isAsync`
     - 类型：`Boolean`
     - 默认值：`'false''`
-    - 描述：该参数表示整个 `@Section` 是否异步允许
+    - 描述：该参数表示整个 `@Section` 是否异步允许(仅在 bean 属性 `isSectionSurround == false` 时生效)，其它时候自动判断是否为异步
     - 注意：若由多个 `@Section` 注解装饰于同一个属性，其中任一一个注解被标示为 `isAsync = true`, 则所有的 `@Section` 注解都为异步运行
     - 可选 
+
+#### `@Surround`
+
+作用和 `@Section` 类似，但该注解不依赖于注解 `@Bean`，在任何情况下都生效
+
+作用范围：`method` 或 `getter/setter`  
+
+注意：避免同时为同一 name 的 getter 方法和 setter 方法装饰效果相同的该注解，对于同一 name 的 `getter/setter` 注解会识别为同一属性。  
+
+错误示范：
+```javascript
+class A {
+  @Surround
+  get name() {
+      return this._name;
+  }
+
+  @Surround
+  set name(value) {
+      this._name = value;
+  }
+}
+```
+正确示范：
+```javascript
+class A {
+  get name() {
+      return this._name;
+  }
+
+  @Surround
+  set name(value) {
+      this._name = value;
+  }
+}
+```
+或
+```javascript
+class A {
+  @Surround
+  get name() {
+    return this._name;
+  }
+
+  set name(value) {
+      this._name = value;
+  }
+}
+```
+
+默认参数：`before` 
+
+新增参数：
+- `after`
+    - 类型：`Function`
+    - 默认值：空方法
+    - 描述：在被该注解装饰的方法被调用结束时，调用该方法
+    - 回调参数：(对象形式)
+        - params: 原方法调用的参数 - `Object - {key:vlaue}`
+        - annotations: 该方法上的注解列表 - `Array<Object>`
+        - propertyEntity: 属性实体，包含属性名等信息
+        - lastOrigin: 若同时有多个 `@Surround` 注解，外部的 `Surround` 可以获取最近一次 `Surround` 的方法
+        - lastValue: 表示 `lastOrigin` 的返回值
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象
+    - 返回值: 代替源方法的返回值，如果外部还有 `@Surround` 注解，则由 `lastValue` 的形式交由下一个 `Surround` 
+ - 可选
+- `before`
+    - 类型：`Function`
+    - 默认值：空方法
+    - 描述：在被该注解装饰的方法被调用前时，调用该方法
+    - 回调参数：(对象形式)
+        - params: 原方法调用的参数 - `Object - {key:vlaue}`
+        - annotations: 该方法上的注解列表 - `Array<Object>`
+        - propertyEntity: 属性实体，包含属性名等信息
+        - lastOrigin: 若同时有多个 `@Surround` 注解，外部的 `Surround` 可以获取最近一次 `Surround` 的方法
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象
+    - 返回值: 无特殊用途
+    - 可选 
+    - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
+- `onError`
+    - 类型：`Function`
+    - 默认值：空方法
+    - 描述：在调用该方法时出现错误时调用该方法(包括 before, after)
+    - 回调参数：(对象形式)
+        - error: 错误对象
+        - resolve: 用于解决错误的方法，调用该方法表示不报错，参数表示正常的返回值 - `Function - result`
+    - 返回值: 若 resolve 的参数为空，则使用该返回值
+    - 可选 
+- `isAsync` `已移除`
  
  #### `@Annotate`
  该注解用于生成新的注解，需要作用与 class，新注解的名字即 class 名，使用方法如下：
@@ -623,7 +724,7 @@ class TestBoot {
   
  注解参数：
  - `extends`
- 	- 表示生成的注解继承于哪个注解，必须是 `*Describe` 类型
+ 	- 表示生成的注解继承于哪个注解，可以是 `*Describe` 类型，也可以是某个注解本身
  	- 默认：`BasicAnnotationDescribe`
  	- 可选
  

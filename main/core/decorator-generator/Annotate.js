@@ -25,10 +25,20 @@ export class AnnotateDescribe extends BasicAnnotationDescribe {
 
     get extendsDescribe() {
         const extendsDescribe = this.params.extends;
+        let secondDescribe;
+        if ('describeTypes' in extendsDescribe) {
+            secondDescribe = extendsDescribe.describeTypes[0];
+        }
         const instance = {};
         Object.setPrototypeOf(instance, extendsDescribe.prototype);
         if (instance instanceof BasicAnnotationDescribe) {
             return extendsDescribe;
+        } else if (typeof secondDescribe === 'function') {
+            const secondInstance = {};
+            Object.setPrototypeOf(secondInstance, secondDescribe.prototype);
+            if (secondInstance instanceof BasicAnnotationDescribe) {
+                return secondDescribe;
+            }
         }
         return BasicAnnotationDescribe;
     }
@@ -67,11 +77,14 @@ export class AnnotateDescribe extends BasicAnnotationDescribe {
 
             onStorageFinished(params) {
                 super.onStorageFinished(params);
+                const inputParams = this.inputParams;
                 Object.entries(
                     _this.targetDynamicPropertyMap
                 ).forEach(
                     ([name, func]) => {
-                        this.params[name] = func.bind(this)(params)
+                        if (!Object.keys(inputParams).includes(name)) {
+                            this.params[name] = func.bind(this)(params)
+                        }
                     }
                 )
             }

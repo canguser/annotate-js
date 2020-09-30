@@ -16,6 +16,8 @@ export class BasicAnnotationDescribe {
 
     get defaultKey(): string;
 
+    get inputParams(): Object;
+
     onStorageFinished(params: { classEntity: ClassEntity, propertyEntity: PropertyEntity }): void;
 
     onPropertyDecorated(params: { propertyEntity: PropertyEntity }): void;

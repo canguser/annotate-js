@@ -61,12 +61,18 @@ class BasicAnnotationDescribe {
     }
 
     applyDefaultArgs() {
+        Object.assign(this.params, this.inputParams);
+    }
+
+    get inputParams() {
         const {args} = this;
+        const params = {};
         if (!AnnotationUtils.isConfigurableObject(args[0])) {
-            this.params[this.defaultKey] = args[0];
+            params[this.defaultKey] = args[0];
         } else {
-            Object.assign(this.params, args[0]);
+            Object.assign(params, args[0]);
         }
+        return params;
     }
 
     onDecorate(...args) {
@@ -117,6 +123,7 @@ class BasicAnnotationDescribe {
     storageInnerDecorator(target, name, descriptor) {
         const propertyEntity = new PropertyEntity(name);
         propertyEntity.descriptor = descriptor;
+        propertyEntity.initialValue = descriptor.value;
         propertyEntity.addAnnotation(this);
         this.applyProperty(propertyEntity);
     }
