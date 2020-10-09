@@ -2,6 +2,13 @@
 
 Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 而实现的一套注解框架，我们可以通过这套框架实现类似 Java 中的依赖注入，以及面向切面编程等，适用于 Node 服务器与常规的 Javascript 开发。
 
+> ==[说明]== `proposal-decorators` 提案经过了大幅修改，目前还没有定案，不知道语法会不会再变。本框架语法由于其特性以及需要 `Babel` 支持，所以采用的注解装饰器语法不是最新语法，需要配置 `"legacy": true`, 在以后该提案已经定案的情况下，会重现判断是否能够实现该框架需求从而决定是否对核心部分进行重构。  
+**不过不用担心，由于 `Babel` 的存在，即使是新的语法已经推出，该框架也能正常使用。**  
+最后附上该框架所使用的语法使用向导/原理：  
+· [装饰器 - ECMAScript 6入门 (国内)](https://es6.ruanyifeng.com/#docs/decorator)  
+· [javascript-decorators](https://github.com/wycats/javascript-decorators/blob/master/README.md)
+
+
 ---
 
 ### 目录
@@ -20,6 +27,7 @@ Annotate JS 是一个基于 Javascript 中的注解提案 `proposal-decorators` 
     - [`@Autowired`](#autowired)
     - [`@EnergyWire`](#energyWire)
     - [`@Section`](#section)
+    - [`@Surround`](#surround)
     - [`@Annotate`](#annotate)
     - [`@DefaultParam`](#defaultparam)
     - [`@DynamicParam`](#dynamicparam)

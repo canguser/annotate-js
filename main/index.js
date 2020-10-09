@@ -14,6 +14,7 @@ const ClassEntity = require('./core/entities/ClassEntity');
 const PropertyEntity = require('./core/entities/PropertyEntity').default;
 const HasAnnotations = require('./core/entities/HasAnnotations').default;
 const SimpleFactory = require('./core/factory/SimpleFactory').default;
+const PluginLoader = require('./core/plugin/PluginLoader').default;
 
 exports.Bean = Bean;
 exports.Annotate = Annotate;
@@ -49,3 +50,4 @@ exports.ClassEntity = ClassEntity;
 exports.PropertyEntity = PropertyEntity;
 exports.HasAnnotations = HasAnnotations;
 exports.SimpleFactory = SimpleFactory;
+exports.PluginLoader = PluginLoader;
