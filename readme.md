@@ -559,23 +559,6 @@ class TestBoot {
 默认参数：`priority` 作用同父级
 
 新增参数：
-- `after`
-    - 类型：`Function`
-    - 默认值：空方法
-    - 描述：在被该注解装饰的方法被调用结束时，调用该方法
-    - 回调参数：(对象形式)
-        - origin: 原方法 - `Function`
-        - params: 原方法调用的参数 - `Object - {key:vlaue}`
-        - annotations: 该方法上的注解列表 - `Array<Object>`
-        - propertyEntity: 属性实体，包含属性名等信息
-        - lastOrigin: 若同时有多个 `@Section` 注解，外部的 `Section` 可以获取最近一次 `Surround` 的方法
-        - lastValue: 表示 `lastOrigin` 的返回值
-        - 以下属性在 @Bean 属性 `isSectionSurround == false` 时无效
-        - isGetter: `boolean` 当前方法是否为 Getter,
-        - isSetter: `boolean` 当前方法是否为 Setter,
-        - annotate: `Object` 当前注解对象
-    - 返回值: 代替源方法的返回值，如果外部还有 `@Section` 注解，则由 `lastValue` 的形式交由下一个 `Section` 
- - 可选
 - `before`
     - 类型：`Function`
     - 默认值：空方法
@@ -590,10 +573,29 @@ class TestBoot {
         - isGetter: `boolean` 当前方法是否为 Getter,
         - isSetter: `boolean` 当前方法是否为 Setter,
         - annotate: `Object` 当前注解对象,
+        - trans: `Object` 表示当前事物的缓存变量，更改该变量可以让之后执行的方法 `after` 或 `onError` 获取改变后的值,
         - preventDefault: `function` 若调用该方法则阻止运行原方法，并且将 before 方法的返回值作为原方法返回值
     - 返回值: 无特殊用途
     - 可选 
     - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
+- `after`
+    - 类型：`Function`
+    - 默认值：空方法
+    - 描述：在被该注解装饰的方法被调用结束时，调用该方法
+    - 回调参数：(对象形式)
+        - origin: 原方法 - `Function`
+        - params: 原方法调用的参数 - `Object - {key:vlaue}`
+        - annotations: 该方法上的注解列表 - `Array<Object>`
+        - propertyEntity: 属性实体，包含属性名等信息
+        - lastOrigin: 若同时有多个 `@Section` 注解，外部的 `Section` 可以获取最近一次 `Surround` 的方法
+        - lastValue: 表示 `lastOrigin` 的返回值
+        - 以下属性在 @Bean 属性 `isSectionSurround == false` 时无效
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象,
+        - trans: `Object` 表示当前事物的缓存变量，更改该变量可以让之后执行的方法 `after` 或 `onError` 获取改变后的值
+    - 返回值: 代替源方法的返回值，如果外部还有 `@Section` 注解，则由 `lastValue` 的形式交由下一个 `Section` 
+    - 可选
 - `onError`
     - 类型：`Function`
     - 默认值：空方法
@@ -601,6 +603,16 @@ class TestBoot {
     - 回调参数：(对象形式)
         - error: 错误对象
         - resolve: 用于解决错误的方法，调用该方法表示不报错，参数表示正常的返回值 - `Function - result`
+        - 以下属性在 @Bean 属性 `isSectionSurround == false` 时无效
+        - params: 原方法调用的参数 - `Object - {key:vlaue}`
+        - annotations: 该方法上的注解列表 - `Array<Object>`
+        - propertyEntity: 属性实体，包含属性名等信息
+        - lastOrigin: 若同时有多个 `@Surround` 注解，外部的 `Surround` 可以获取最近一次 `Surround` 的方法
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象
+        - trans: `Object` 表示当前事物的缓存变量，更改该变量可以让之后执行的方法 `after` 或 `onError` 获取改变后的值
+        - preventDefault: `function` 若调用该方法则阻止运行原方法，并且将 before 方法的返回值作为原方法返回值
     - 返回值: 若 resolve 的参数为空，则使用该返回值
     - 可选 
 - `isAsync`
@@ -662,6 +674,23 @@ class A {
 默认参数：`before` 
 
 参数：
+- `before`
+    - 类型：`Function`
+    - 默认值：空方法
+    - 描述：在被该注解装饰的方法被调用前时，调用该方法
+    - 回调参数：(对象形式)
+        - params: 原方法调用的参数 - `Object - {key:vlaue}`
+        - annotations: 该方法上的注解列表 - `Array<Object>`
+        - propertyEntity: 属性实体，包含属性名等信息
+        - lastOrigin: 若同时有多个 `@Surround` 注解，外部的 `Surround` 可以获取最近一次 `Surround` 的方法
+        - isGetter: `boolean` 当前方法是否为 Getter,
+        - isSetter: `boolean` 当前方法是否为 Setter,
+        - annotate: `Object` 当前注解对象
+        - trans: `Object` 表示当前事物的缓存变量，更改该变量可以让之后执行的方法 `after` 或 `onError` 获取改变后的值
+        - preventDefault: `function` 若调用该方法则阻止运行原方法，并且将 before 方法的返回值作为原方法返回值
+    - 返回值: 无特殊用途
+    - 可选 
+    - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
 - `after`
     - 类型：`Function`
     - 默认值：空方法
@@ -675,29 +704,22 @@ class A {
         - isGetter: `boolean` 当前方法是否为 Getter,
         - isSetter: `boolean` 当前方法是否为 Setter,
         - annotate: `Object` 当前注解对象,
-        - preventDefault: `function` 若调用该方法则阻止运行原方法，并且将 before 方法的返回值作为原方法返回值
+        - trans: `Object` 表示当前事物的缓存变量，更改该变量可以让之后执行的方法 `after` 或 `onError` 获取改变后的值
     - 返回值: 代替源方法的返回值，如果外部还有 `@Surround` 注解，则由 `lastValue` 的形式交由下一个 `Surround` 
- - 可选
-- `before`
+    - 可选
+- `onError`
     - 类型：`Function`
     - 默认值：空方法
-    - 描述：在被该注解装饰的方法被调用前时，调用该方法
+    - 描述：在调用该方法时出现错误时调用该方法(包括 before, after)
     - 回调参数：(对象形式)
-        - params: 原方法调用的参数 - `Object - {key:vlaue}`
+	    - params: 原方法调用的参数 - `Object - {key:vlaue}`
         - annotations: 该方法上的注解列表 - `Array<Object>`
         - propertyEntity: 属性实体，包含属性名等信息
         - lastOrigin: 若同时有多个 `@Surround` 注解，外部的 `Surround` 可以获取最近一次 `Surround` 的方法
         - isGetter: `boolean` 当前方法是否为 Getter,
         - isSetter: `boolean` 当前方法是否为 Setter,
         - annotate: `Object` 当前注解对象
-    - 返回值: 无特殊用途
-    - 可选 
-    - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
-- `onError`
-    - 类型：`Function`
-    - 默认值：空方法
-    - 描述：在调用该方法时出现错误时调用该方法(包括 before, after)
-    - 回调参数：(对象形式)
+        - trans: `Object` 表示当前事物的缓存变量，更改该变量可以让之后执行的方法 `after` 或 `onError` 获取改变后的值
         - error: 错误对象
         - resolve: 用于解决错误的方法，调用该方法表示不报错，参数表示正常的返回值 - `Function - result`
     - 返回值: 若 resolve 的参数为空，则使用该返回值

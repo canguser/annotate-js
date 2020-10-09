@@ -21,6 +21,20 @@ export function Autowired(params?: {
 } | string): void ;
 
 export function Section<T extends BasicAnnotationDescribe>(params?: {
+    before?: (
+        params: {
+            origin?: Function,
+            params?: Object,
+            annotations?: Array<T>,
+            propertyEntity?: Object,
+            lastOrigin?: Function,
+            isGetter: boolean,
+            isSetter: boolean,
+            annotate: T,
+            trans: Object,
+            preventDefault(): void
+        }
+    ) => void;
     after?: (
         params: {
             origin?: Function,
@@ -31,25 +45,24 @@ export function Section<T extends BasicAnnotationDescribe>(params?: {
             lastValue?: any,
             isGetter: boolean,
             isSetter: boolean,
-            annotate: T
+            annotate: T,
+            trans: Object
         }
     ) => any;
-    before?: (
+    onError?: (
         params: {
             origin?: Function,
             params?: Object,
             annotations?: Array<T>,
             propertyEntity?: Object,
             lastOrigin?: Function,
+            lastValue?: any,
             isGetter: boolean,
             isSetter: boolean,
-            annotate: T
-        }
-    ) => void;
-    onError?: (
-        params: {
+            annotate: T,
+            trans: Object,
             error?: Object,
-            resolve?: Function,
+            resolve(params: any): void,
         }
     ) => any;
 
@@ -57,6 +70,20 @@ export function Section<T extends BasicAnnotationDescribe>(params?: {
 
 export function Surround<T extends BasicAnnotationDescribe>(
     params?: {
+        before?: (
+            params: {
+                origin?: Function,
+                params?: Object,
+                annotations?: Array<T>,
+                propertyEntity?: Object,
+                lastOrigin?: Function,
+                isGetter: boolean,
+                isSetter: boolean,
+                annotate: T,
+                trans: Object,
+                preventDefault(): void
+            }
+        ) => void;
         after?: (
             params: {
                 origin?: Function,
@@ -67,25 +94,24 @@ export function Surround<T extends BasicAnnotationDescribe>(
                 lastValue?: any,
                 isGetter: boolean,
                 isSetter: boolean,
-                annotate: T
+                annotate: T,
+                trans: Object
             }
         ) => any;
-        before?: (
+        onError?: (
             params: {
                 origin?: Function,
                 params?: Object,
                 annotations?: Array<T>,
                 propertyEntity?: Object,
                 lastOrigin?: Function,
+                lastValue?: any,
                 isGetter: boolean,
                 isSetter: boolean,
-                annotate: T
-            }
-        ) => void;
-        onError?: (
-            params: {
+                annotate: T,
+                trans: Object,
                 error?: Object,
-                resolve?: Function,
+                resolve(params: any): void,
             }
         ) => any;
     } | Function

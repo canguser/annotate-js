@@ -66,14 +66,14 @@ export default class SectionMethodBuilder {
         const onError = section.getParams('onError');
 
         return function (...args) {
+            const isGetter = 'get' in propertyEntity.descriptor && lastOrigin.name === 'get';
+            const isSetter = 'set' in propertyEntity.descriptor && lastOrigin.name === 'set';
+            const trans = {};
+            const baseParams = {
+                origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin,
+                annotate: section, isGetter, isSetter, trans
+            };
             try {
-                const isGetter = 'get' in propertyEntity.descriptor && lastOrigin.name === 'get';
-                const isSetter = 'set' in propertyEntity.descriptor && lastOrigin.name === 'set';
-                const baseParams = {
-                    origin, params: args, annotations: propertyEntity.annotations, propertyEntity, lastOrigin,
-                    annotate: section, isGetter, isSetter
-                };
-
                 let preventDefault = false;
                 // parsing before
                 const beforeResult = before.call(this, {
@@ -130,7 +130,7 @@ export default class SectionMethodBuilder {
                     message = msg;
                     isSolved = true;
                 };
-                const result = onError.call(this, {error, resolve});
+                const result = onError.call(this, {...baseParams, error, resolve});
                 if (!isSolved) {
                     throw error;
                 }
