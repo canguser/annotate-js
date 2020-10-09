@@ -74,8 +74,17 @@ export default class SectionMethodBuilder {
                     annotate: section, isGetter, isSetter
                 };
 
+                let preventDefault = false;
                 // parsing before
-                const beforeResult = before.call(this, baseParams);
+                const beforeResult = before.call(this, {
+                    ...baseParams,
+                    preventDefault() {
+                        preventDefault = true;
+                    }
+                });
+                if (preventDefault) {
+                    return beforeResult;
+                }
                 let returnValue;
                 if (beforeResult instanceof Promise) {
                     returnValue = beforeResult.then(

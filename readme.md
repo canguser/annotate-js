@@ -581,7 +581,8 @@ class TestBoot {
         - 以下属性在 @Bean 属性 `isSectionSurround == false` 时无效
         - isGetter: `boolean` 当前方法是否为 Getter,
         - isSetter: `boolean` 当前方法是否为 Setter,
-        - annotate: `Object` 当前注解对象
+        - annotate: `Object` 当前注解对象,
+        - preventDefault: `function` 若调用该方法则阻止运行原方法，并且将 before 方法的返回值作为原方法返回值
     - 返回值: 无特殊用途
     - 可选 
     - 默认参数：在注解参数只有一个且不是对象的时候，标注为默认参数的注解属性会被赋值为该参数
@@ -652,7 +653,7 @@ class A {
 
 默认参数：`before` 
 
-新增参数：
+参数：
 - `after`
     - 类型：`Function`
     - 默认值：空方法
@@ -665,7 +666,8 @@ class A {
         - lastValue: 表示 `lastOrigin` 的返回值
         - isGetter: `boolean` 当前方法是否为 Getter,
         - isSetter: `boolean` 当前方法是否为 Setter,
-        - annotate: `Object` 当前注解对象
+        - annotate: `Object` 当前注解对象,
+        - preventDefault: `function` 若调用该方法则阻止运行原方法，并且将 before 方法的返回值作为原方法返回值
     - 返回值: 代替源方法的返回值，如果外部还有 `@Surround` 注解，则由 `lastValue` 的形式交由下一个 `Surround` 
  - 可选
 - `before`
